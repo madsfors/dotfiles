@@ -14,12 +14,12 @@ logn()  { STRAP_STEP="$*"; printf -- "--> %s " "$*"; }
 logk()  { STRAP_STEP=""; echo "OK"; }
 escape() { printf '%s\n' "${1//\'/\'\\\'\'}" | sed "s/\([\\\$\`\"]\)/\\\\\1/g"; }
 
-sw_vers -productVersion | grep $Q -E "^10.(9|[1-9][0-9])" || {
+sw_vers -productVersion | grep -q -E "^(1[0-9]|[2-9][0-9])\." || {
   abort "Run Strap on macOS 10.9+!"
 }
 
 [ "$USER" = "root" ] && abort "Run Strap as yourself, not root."
-groups | grep $Q admin || abort "Add $USER to the admin group."
+groups | grep -q admin || abort "Add $USER to the admin group."
 
 # Prevent sleeping during script execution
 caffeinate -s -w $$ &
