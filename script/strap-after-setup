@@ -1,0 +1,105 @@
+#!/bin/bash
+
+# Mads' Strap After Setup Script
+# Runs after the main bootstrap process to finalize configuration
+
+set -e
+
+echo ""
+echo "🔧 Running final configuration steps..."
+echo ""
+
+# Apply macOS defaults
+if [ -x "script/macos-defaults" ]; then
+  echo "→ Applying macOS system preferences..."
+  ./script/macos-defaults
+fi
+
+# Set zsh as default shell if it isn't already
+if [ "$SHELL" != "$(which zsh)" ]; then
+  echo "→ Setting zsh as default shell..."
+  sudo chsh -s $(which zsh) $USER
+fi
+
+# Install global npm packages
+echo "→ Installing global npm packages..."
+npm install -g \
+  @angular/cli \
+  @vue/cli \
+  create-react-app \
+  typescript \
+  ts-node \
+  nodemon \
+  npm-check-updates \
+  yarn \
+  serve \
+  http-server
+
+# Install global pnpm packages
+echo "→ Installing global pnpm packages..."
+pnpm add -g \
+  vercel \
+  @nestjs/cli \
+  prisma
+
+# Configure Cursor if it's installed
+if command -v cursor >/dev/null 2>&1; then
+  echo "→ Setting up Cursor with your preferred theme and extensions..."
+  
+  # Install Night Owl theme and essential extensions
+  cursor --install-extension sdras.night-owl
+  cursor --install-extension esbenp.prettier-vscode
+  cursor --install-extension bradlc.vscode-tailwindcss
+  cursor --install-extension ms-vscode.vscode-typescript-next
+  cursor --install-extension ms-vscode.vscode-json
+  cursor --install-extension astro-build.astro-vscode
+  cursor --install-extension github.vscode-pull-request-github
+  cursor --install-extension redhat.vscode-xml
+  cursor --install-extension ms-dotnettools.csharp
+  cursor --install-extension mjmlio.vscode-mjml
+  cursor --install-extension britesnow.vscode-toggle-quotes
+  cursor --install-extension parallelsdesktop.parallels-desktop
+  cursor --install-extension PKief.material-icon-theme
+  cursor --install-extension github.copilot
+  cursor --install-extension formulahendry.auto-rename-tag
+  cursor --install-extension christian-kohler.path-intellisense
+  
+  echo "→ Cursor configured with Night Owl theme and your preferred settings"
+fi
+
+# Generate SSH key if none exists
+if [ ! -f "$HOME/.ssh/id_ed25519" ]; then
+  echo "→ Generating SSH key..."
+  ssh-keygen -t ed25519 -C "mads@madsfors.dk" -f "$HOME/.ssh/id_ed25519" -N ""
+  
+  echo ""
+  echo "📋 Your SSH public key (copy this to GitHub):"
+  echo ""
+  cat "$HOME/.ssh/id_ed25519.pub"
+  echo ""
+  echo "Add this to your GitHub account: https://github.com/settings/ssh/new"
+  echo ""
+fi
+
+# Start SSH agent and add key
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519 2>/dev/null || true
+
+# Setup git configuration
+echo "→ Setting up git..."
+git config --global user.name "Mads Fors"
+git config --global user.email "mads@madsfors.dk"
+git config --global github.user "madsfors"
+git config --global init.defaultBranch main
+git config --global push.autoSetupRemote true
+git config --global pull.rebase true
+
+echo ""
+echo "🎉 Final configuration complete!"
+echo ""
+echo "Manual steps you may want to complete:"
+echo "• Add your SSH key to GitHub (shown above)"
+echo "• Sign in to all your applications"
+echo "• Configure 1Password browser integration"
+echo "• Set up any remaining app-specific preferences"
+echo ""

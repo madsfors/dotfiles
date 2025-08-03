@@ -1,0 +1,35 @@
+{
+  "editor.fontSize": 18,
+  "editor.fontFamily": "'Dank Mono', Menlo, Monaco, 'Courier New', monospace",
+  "editor.tabSize": 2,
+  "workbench.colorTheme": "Night Owl",
+  "window.zoomLevel": 2,
+  "workbench.startupEditor": "none",
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.accessibilitySupport": "off",
+  "[astro]": {
+    "editor.defaultFormatter": "astro-build.astro-vscode"
+  },
+  "editor.stickyScroll.enabled": false,
+  "parallels-desktop.extension.path": "/Users/mads/.parallels-desktop-vscode",
+  "parallels-desktop.git.path": "/usr/bin/git",
+  "parallels-desktop.brew.path": "/opt/homebrew/bin/brew",
+  "redhat.telemetry.enabled": false,
+  "workbench.sideBar.location": "right",
+  "supermaven.enable": {
+    "*": false
+  },
+  "parallels-desktop.prlctl.path": "/usr/local/bin/prlctl",
+  "cursor.composer.shouldChimeAfterChatFinishes": true,
+  "terminal.integrated.fontFamily": "'Dank Mono', Menlo, Monaco, 'Courier New', monospace",
+  "terminal.integrated.fontSize": 16,
+  "editor.minimap.enabled": false,
+  "editor.lineNumbers": "on",
+  "editor.renderWhitespace": "selection",
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "workbench.iconTheme": "material-icon-theme",
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true
+}

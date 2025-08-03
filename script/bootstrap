@@ -1,0 +1,146 @@
+#!/bin/bash
+
+# Mads' macOS Bootstrap Script
+# Based on https://github.com/MikeMcQuaid/strap
+# 👢 Bootstrap your macOS development system.
+
+set -e
+
+STRAP_SUCCESS=""
+
+abort() { STRAP_STEP=""; echo "!!! $*" >&2; exit 1; }
+log()   { STRAP_STEP="$*"; echo "--> $*"; }
+logn()  { STRAP_STEP="$*"; printf -- "--> %s " "$*"; }
+logk()  { STRAP_STEP=""; echo "OK"; }
+escape() { printf '%s\n' "${1//\'/\'\\\'\'}" | sed "s/\([\\\$\`\"]\)/\\\\\1/g"; }
+
+sw_vers -productVersion | grep $Q -E "^10.(9|[1-9][0-9])" || {
+  abort "Run Strap on macOS 10.9+!"
+}
+
+[ "$USER" = "root" ] && abort "Run Strap as yourself, not root."
+groups | grep $Q admin || abort "Add $USER to the admin group."
+
+# Prevent sleeping during script execution
+caffeinate -s -w $$ &
+
+# Enable sudo using TouchID (if supported)
+if [[ $(uname -m) == 'arm64' ]] && ! grep -q "pam_tid.so" /etc/pam.d/sudo; then
+  log "Enabling sudo using TouchID:"
+  echo "auth       sufficient     pam_tid.so" | sudo tee -a /etc/pam.d/sudo >/dev/null
+  logk
+fi
+
+# Set macOS preferences
+log "Enabling macOS screensaver password immediately (for better security):"
+defaults write com.apple.screensaver askForPassword -int 1
+defaults write com.apple.screensaver askForPasswordDelay -int 0
+logk
+
+log "Enabling macOS application firewall (for better security):"
+sudo defaults write /Library/Preferences/com.apple.alf globalstate -int 1
+logk
+
+log "Enabling full-disk encryption and saving FileVault Recovery Key to Desktop:"
+if fdesetup status | grep $Q "FileVault is Off"; then
+  sudo fdesetup enable -user "$USER" \
+    | tee ~/Desktop/"FileVault Recovery Key.txt"
+fi
+logk
+
+# Check for Command Line Tools
+log "Checking if Command Line Tools are installed:"
+if ! xcode-select --print-path &>/dev/null; then
+  log "Installing Command Line Tools (expect a GUI popup):"
+  xcode-select --install
+  echo "Press any key when the installation has completed."
+  read -r
+fi
+logk
+
+# Agree to Xcode license
+if /usr/bin/xcrun clang 2>&1 | grep $Q license; then
+  log "Asking for Xcode license confirmation:"
+  sudo xcodebuild -license
+  logk
+fi
+
+# Install Homebrew (unless Workbrew is installed)
+if ! which brew &>/dev/null && ! which workbrew &>/dev/null; then
+  log "Installing Homebrew:"
+  bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  
+  # Add Homebrew to PATH for Apple Silicon Macs
+  if [[ $(uname -m) == 'arm64' ]]; then
+    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  fi
+  logk
+fi
+
+# Update Homebrew
+log "Updating Homebrew:"
+brew update
+logk
+
+# Install software from Brewfile
+if [ -f "$HOME/dotfiles/Brewfile" ]; then
+  log "Installing software from Brewfile:"
+  cd "$HOME/dotfiles"
+  brew bundle --file=Brewfile
+  logk
+elif [ -f "$HOME/.homebrew-brewfile" ]; then
+  log "Installing software from ~/.homebrew-brewfile:"
+  brew bundle --file="$HOME/.homebrew-brewfile"
+  logk
+elif [ -f "$HOME/.Brewfile" ]; then
+  log "Installing software from ~/.Brewfile:"
+  brew bundle --file="$HOME/.Brewfile"
+  logk
+fi
+
+# Install macOS software updates
+log "Installing macOS software updates:"
+sudo softwareupdate -i -a 2>/dev/null
+logk
+
+# Setup dotfiles repository
+if [ -d "$HOME/.dotfiles" ]; then
+  (
+    cd "$HOME/.dotfiles"
+    
+    # Check if this is a git repository
+    if [ -d .git ]; then
+      log "Updating dotfiles from Git repository:"
+      git pull --rebase --quiet
+      logk
+    fi
+    
+    # Run setup script if it exists and is executable
+    if [ -f "script/setup" ] && [ -x "script/setup" ]; then
+      log "Running dotfiles setup script:"
+      ./script/setup
+      logk
+    fi
+  )
+fi
+
+STRAP_SUCCESS="1"
+
+log "Running final setup tasks:"
+# Run strap-after-setup if it exists in dotfiles
+if [ -d "$HOME/.dotfiles" ] && [ -f "$HOME/.dotfiles/script/strap-after-setup" ] && [ -x "$HOME/.dotfiles/script/strap-after-setup" ]; then
+  log "Running strap-after-setup script:"
+  cd "$HOME/.dotfiles"
+  ./script/strap-after-setup
+  logk
+fi
+
+echo ""
+echo "🎉 Your Mac is ready! Restart your terminal to ensure all changes take effect."
+echo ""
+echo "Next steps:"
+echo "• Open a new terminal window"
+echo "• Check that your shell configuration loaded correctly"
+echo "• Verify all applications are working as expected"
+echo ""
