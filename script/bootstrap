@@ -24,29 +24,34 @@ groups | grep -q admin || abort "Add $USER to the admin group."
 # Prevent sleeping during script execution
 caffeinate -s -w $$ &
 
-# Enable sudo using TouchID (if supported)
-if [[ $(uname -m) == 'arm64' ]] && ! grep -q "pam_tid.so" /etc/pam.d/sudo; then
-  log "Enabling sudo using TouchID:"
-  echo "auth       sufficient     pam_tid.so" | sudo tee -a /etc/pam.d/sudo >/dev/null
-  logk
-fi
+# SECURITY SETTINGS DISABLED FOR WORK MACHINE
+# Uncomment these if you want security features on a personal machine
 
-# Set macOS preferences
-log "Enabling macOS screensaver password immediately (for better security):"
-defaults write com.apple.screensaver askForPassword -int 1
-defaults write com.apple.screensaver askForPasswordDelay -int 0
-logk
+# # Enable sudo using TouchID (if supported)
+# if [[ $(uname -m) == 'arm64' ]] && ! grep -q "pam_tid.so" /etc/pam.d/sudo; then
+#   log "Enabling sudo using TouchID:"
+#   echo "auth       sufficient     pam_tid.so" | sudo tee -a /etc/pam.d/sudo >/dev/null
+#   logk
+# fi
 
-log "Enabling macOS application firewall (for better security):"
-sudo defaults write /Library/Preferences/com.apple.alf globalstate -int 1
-logk
+# # Set macOS preferences
+# log "Enabling macOS screensaver password immediately (for better security):"
+# defaults write com.apple.screensaver askForPassword -int 1
+# defaults write com.apple.screensaver askForPasswordDelay -int 0
+# logk
 
-log "Enabling full-disk encryption and saving FileVault Recovery Key to Desktop:"
-if fdesetup status | grep $Q "FileVault is Off"; then
-  sudo fdesetup enable -user "$USER" \
-    | tee ~/Desktop/"FileVault Recovery Key.txt"
-fi
-logk
+# # Enable application firewall
+# log "Enabling macOS application firewall (for better security):"
+# sudo defaults write /Library/Preferences/com.apple.alf globalstate -int 1
+# logk
+
+# # Enable FileVault encryption
+# log "Enabling full-disk encryption and saving FileVault Recovery Key to Desktop:"
+# if fdesetup status | grep -q "FileVault is Off"; then
+#   sudo fdesetup enable -user "$USER" \
+#     | tee ~/Desktop/"FileVault Recovery Key.txt"
+# fi
+# logk
 
 # Check for Command Line Tools
 log "Checking if Command Line Tools are installed:"

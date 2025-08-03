@@ -177,13 +177,13 @@ defaults write NSGlobalDomain com.apple.sound.beep.volume -float 0.6137927
 defaults write NSGlobalDomain com.apple.sound.beep.flash -bool false
 
 ###############################################################################
-# Security & Privacy                                                         #
+# Security & Privacy - DISABLED FOR WORK MACHINE                            #
 ###############################################################################
 
-echo "→ Setting security preferences"
+# echo "→ Setting security preferences"
 
-# Enable the firewall
-sudo defaults write /Library/Preferences/com.apple.alf globalstate -int 1
+# # Enable the firewall - COMMENTED OUT FOR WORK MACHINE
+# sudo defaults write /Library/Preferences/com.apple.alf globalstate -int 1
 
 ###############################################################################
 # Kill affected applications                                                  #
