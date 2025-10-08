@@ -17,6 +17,7 @@ brew "ripgrep"      # Fast grep alternative
 
 # Shell & Terminal
 brew "zsh"
+cask "warp"         # Modern terminal with AI
 
 # Media & Graphics Libraries (for development)
 brew "ffmpeg"
