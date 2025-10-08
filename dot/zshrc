@@ -64,11 +64,35 @@ ZSH_THEME="robbyrussell"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git brew node npm macos)
+plugins=(
+  git
+  brew
+  node
+  npm
+  macos
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+)
 
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
+
+# History Configuration
+HISTSIZE=10000
+SAVEHIST=10000
+setopt SHARE_HISTORY          # Share history across terminals
+setopt HIST_IGNORE_DUPS       # Don't record duplicates
+setopt HIST_IGNORE_ALL_DUPS   # Delete old duplicates
+setopt HIST_FIND_NO_DUPS      # Don't show duplicates in search
+setopt HIST_IGNORE_SPACE      # Don't record commands starting with space
+setopt HIST_SAVE_NO_DUPS      # Don't write duplicates to history file
+setopt APPEND_HISTORY         # Append to history file
+setopt INC_APPEND_HISTORY     # Write to history file immediately
+
+# Editor Configuration
+export EDITOR='cursor --wait'
+export VISUAL='cursor --wait'
 
 # export MANPATH="/usr/local/man:$MANPATH"
 
@@ -145,6 +169,11 @@ esac
 
 # Cursor configuration (if needed)
 # export PATH="/Users/mads/.cursor/bin:$PATH"
+
+# Initialize zoxide (smart cd)
+if command -v zoxide &> /dev/null; then
+  eval "$(zoxide init zsh)"
+fi
 
 # Load custom functions if they exist
 if [ -f "$HOME/.dotfiles/dot/zsh_functions" ]; then

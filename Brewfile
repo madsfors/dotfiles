@@ -14,6 +14,7 @@ brew "tree"
 brew "jq"           # JSON processor
 brew "htop"         # Better top
 brew "ripgrep"      # Fast grep alternative
+brew "zoxide"       # Smart cd command
 
 # Shell & Terminal
 brew "zsh"
