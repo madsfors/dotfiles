@@ -21,50 +21,27 @@ if [ "$SHELL" != "$(which zsh)" ]; then
   sudo chsh -s $(which zsh) $USER
 fi
 
-# Install global npm packages
-echo "→ Installing global npm packages..."
-npm install -g \
-  @angular/cli \
-  @vue/cli \
-  create-react-app \
-  typescript \
-  ts-node \
-  nodemon \
-  npm-check-updates \
-  yarn \
-  serve \
-  http-server
-
-# Install global pnpm packages
-echo "→ Installing global pnpm packages..."
-pnpm add -g \
-  vercel \
-  @nestjs/cli \
-  prisma
-
 # Configure Cursor if it's installed
 if command -v cursor >/dev/null 2>&1; then
-  echo "→ Setting up Cursor with your preferred theme and extensions..."
+  echo "→ Setting up Cursor with essential extensions..."
   
-  # Install Night Owl theme and essential extensions
-  cursor --install-extension sdras.night-owl
-  cursor --install-extension esbenp.prettier-vscode
-  cursor --install-extension bradlc.vscode-tailwindcss
-  cursor --install-extension ms-vscode.vscode-typescript-next
-  cursor --install-extension ms-vscode.vscode-json
-  cursor --install-extension astro-build.astro-vscode
-  cursor --install-extension github.vscode-pull-request-github
-  cursor --install-extension redhat.vscode-xml
-  cursor --install-extension ms-dotnettools.csharp
-  cursor --install-extension mjmlio.vscode-mjml
-  cursor --install-extension britesnow.vscode-toggle-quotes
-  cursor --install-extension parallelsdesktop.parallels-desktop
+  # Icon theme
   cursor --install-extension PKief.material-icon-theme
-  cursor --install-extension github.copilot
+  
+  # Code formatting & quality
+  cursor --install-extension esbenp.prettier-vscode
+  
+  # Web development
+  cursor --install-extension bradlc.vscode-tailwindcss
+  cursor --install-extension astro-build.astro-vscode
   cursor --install-extension formulahendry.auto-rename-tag
   cursor --install-extension christian-kohler.path-intellisense
+  cursor --install-extension britesnow.vscode-toggle-quotes
   
-  echo "→ Cursor configured with Night Owl theme and your preferred settings"
+  # GitHub integration
+  cursor --install-extension github.vscode-pull-request-github
+  
+  echo "→ Cursor configured with essential extensions"
 fi
 
 # Generate SSH key if none exists

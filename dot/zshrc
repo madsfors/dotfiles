@@ -137,7 +137,7 @@ alias gd='git diff'
 alias gb='git branch'
 alias gco='git checkout'
 
-# Node/npm/pnpm aliases
+# npm aliases
 alias ni='npm install'
 alias nid='npm install --save-dev'
 alias nig='npm install --global'
@@ -145,9 +145,6 @@ alias nr='npm run'
 alias ns='npm start'
 alias nt='npm test'
 alias nrb='npm run build'
-alias pi='pnpm install'
-alias pr='pnpm run'
-alias pb='pnpm run build'
 
 # Quick navigation
 alias docs='cd ~/Documents'
@@ -160,15 +157,8 @@ alias reload='source ~/.zshrc'
 alias zshconfig='cursor ~/.zshrc'
 alias hosts='sudo cursor /etc/hosts'
 
-# pnpm configuration
-export PNPM_HOME="/Users/mads/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-
 # Cursor configuration (if needed)
-# export PATH="/Users/mads/.cursor/bin:$PATH"
+# export PATH="$HOME/.cursor/bin:$PATH"
 
 # Initialize zoxide (smart cd)
 if command -v zoxide &> /dev/null; then

@@ -78,16 +78,16 @@
 	defaultBranch = main
 
 [merge]
-	tool = vscode
+	tool = cursor
 
-[mergetool "vscode"]
-	cmd = code --wait $MERGED
+[mergetool "cursor"]
+	cmd = cursor --wait $MERGED
 
 [diff]
-	tool = vscode
+	tool = cursor
 
-[difftool "vscode"]
-	cmd = code --wait --diff $LOCAL $REMOTE
+[difftool "cursor"]
+	cmd = cursor --wait --diff $LOCAL $REMOTE
 
 [rerere]
 	enabled = true

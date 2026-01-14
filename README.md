@@ -1,15 +1,15 @@
 # Mads' Dotfiles
 
-> 👢 Bootstrap your macOS development system with a personalized setup
+> 👢 Bootstrap your macOS system with a personalized setup
 
-This repository contains my complete macOS development environment setup, built on top of the excellent [Strap](https://github.com/MikeMcQuaid/strap) by Mike McQuaid.
+This repository contains my complete macOS environment setup, built on top of the excellent [Strap](https://github.com/MikeMcQuaid/strap) by Mike McQuaid.
 
 ## Features
 
 - **Automated Setup**: One-command bootstrap for new Macs
-- **Comprehensive**: Installs apps, configures system preferences, and sets up development tools
+- **Comprehensive**: Installs apps, configures system preferences, and sets up tools
 - **Idempotent**: Safe to run multiple times
-- **Personalized**: Tailored specifically for my development workflow
+- **Personalized**: Tailored specifically for my workflow
 
 ## Quick Start
 
@@ -26,13 +26,13 @@ cd ~/.dotfiles
 
 ### 🍺 Applications & Tools (via Homebrew)
 
-- **Development**: Cursor, GitHub Desktop, Figma
-- **Productivity**: Notion, Raycast (with window management), Things 3, Bartender
-- **Communication**: Microsoft Teams (pre-installed)
+- **Design**: Figma, Nucleo, ImageOptim
+- **Productivity**: Raycast, Things 3, Bartender, Obsidian
+- **Development**: Cursor, GitHub Desktop
 - **Browsers**: Arc
-- **Media**: Spotify, IINA, OBS
-- **Utilities**: Karabiner-Elements, CleanShot, Hazel
-- **And many more...**
+- **Media**: Spotify, IINA, OBS, Calibre
+- **Utilities**: CleanShot, Hazel, MeetingBar, Flux
+- **Communication**: Discord, Microsoft Office suite
 
 ### ⚙️ System Configuration
 
@@ -40,22 +40,16 @@ cd ~/.dotfiles
 - Fast key repeat rates
 - Dock autohide with custom animations
 - Hot corners configured
-- Security settings (FileVault, Firewall)
 - Trackpad and input optimizations
+- Finder preferences (show hidden files, list view, etc.)
 
-### 🔧 Development Environment
+### 🔧 Environment
 
 - **Shell**: Zsh with Oh My Zsh (robbyrussell theme)
 - **Git**: Configured with aliases and sensible defaults
-- **Node.js**: Latest version with npm and pnpm
-- **Package Managers**: Homebrew, npm, pnpm pre-configured
-- **Editor**: Cursor with Night Owl theme, Dank Mono font, and curated extensions
-- **Visual Consistency**: Dark mode system-wide with matching terminal/editor themes
-
-### ⌨️ Keyboard Customization
-
-- **Karabiner-Elements**: Caps Lock → Hyper Key (⌃⌥⇧⌘) + Escape
-- Custom key mappings for enhanced productivity
+- **Node.js**: Latest version with npm
+- **Editor**: Cursor with Cursor Dark theme, iA Writer Mono font, and essential extensions
+- **Visual Consistency**: Dark mode system-wide
 
 ## File Structure
 
@@ -70,7 +64,7 @@ cd ~/.dotfiles
 │   └── zsh_functions      # Custom shell functions
 ├── files/                 # Configuration files
 │   └── config/
-│       └── karabiner/     # Karabiner-Elements config
+│       └── cursor/        # Cursor editor settings
 └── script/                # Setup and utility scripts
     ├── bootstrap          # Main bootstrap script
     ├── macos-defaults     # macOS system preferences
@@ -108,18 +102,17 @@ This setup is highly personalized for my workflow. To adapt it for yourself:
 3. **Modify configurations**:
    - `dot/zshrc`: Adjust aliases and functions
    - `script/macos-defaults`: Change system preferences
-   - `files/config/karabiner/`: Customize keyboard mappings
+   - `files/config/cursor/`: Customize editor settings
 
 ## Manual Steps
 
 After running the bootstrap, you may want to:
 
 - Add your SSH key to GitHub (will be displayed after setup)
-- Install premium fonts: [Dank Mono](https://philpl.gumroad.com/l/dank-mono), [Departure Mono](https://departuremono.com/) (paid fonts, free alternatives included)
 - Sign in to all applications
 - Configure 1Password browser integration
 - Set up any remaining app-specific preferences
-- Configure cloud sync for applications that support it
+- Optional: Install [Dank Mono](https://philpl.gumroad.com/l/dank-mono) font (paid)
 
 ## Inspiration
 

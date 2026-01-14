@@ -51,6 +51,7 @@ cask "github"
 
 # Fonts
 cask "font-geist-mono"
+cask "font-ia-writer-mono"
 cask "font-ia-writer-duo"
 cask "font-ia-writer-quattro"
 cask "font-departure-mono"
