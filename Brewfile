@@ -1,7 +1,3 @@
-# Taps
-tap "homebrew/bundle"
-tap "homebrew/services"
-
 # Core CLI
 brew "git"
 brew "node"
