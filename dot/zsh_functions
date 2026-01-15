@@ -6,7 +6,7 @@ mkcd() {
 }
 
 # Quick git add, commit, and push
-gcp() {
+gacp() {
   git add .
   git commit -m "$1"
   git push
