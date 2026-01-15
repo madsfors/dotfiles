@@ -33,7 +33,7 @@ cask "nucleo"
 cask "imageoptim"
 
 # Utilities
-cask "flux"
+cask "flux-app"
 cask "meetingbar"
 cask "pdf-squeezer"
 cask "transmit"
