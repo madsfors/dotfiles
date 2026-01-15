@@ -13,9 +13,7 @@ cask "cursor"
 
 # Productivity
 cask "raycast"
-cask "bartender"
 cask "cleanshot"
-cask "hazel"
 cask "obsidian"
 
 # Browsers
