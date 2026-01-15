@@ -25,9 +25,6 @@ cask "obsidian"
 # Browsers
 cask "arc"
 
-# Communication
-cask "discord"
-
 # Media
 cask "spotify"
 cask "iina"
@@ -44,7 +41,9 @@ cask "flux"
 cask "meetingbar"
 cask "pdf-squeezer"
 cask "transmit"
-cask "mullvad-vpn"
+
+# Personal only (skip on work machines)
+# cask "mullvad-vpn"
 
 # Development
 cask "github"

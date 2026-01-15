@@ -32,7 +32,7 @@ cd ~/.dotfiles
 - **Browsers**: Arc
 - **Media**: Spotify, IINA, OBS, Calibre
 - **Utilities**: CleanShot, Hazel, MeetingBar, Flux
-- **Communication**: Discord, Microsoft Office suite
+- **Communication**: Microsoft Office suite
 
 ### ⚙️ System Configuration
 
