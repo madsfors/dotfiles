@@ -127,16 +127,6 @@ alias ...='cd ../..'
 alias ....='cd ../../..'
 alias ~='cd ~'
 
-# Git aliases (additional to oh-my-zsh git plugin)
-alias gs='git status'
-alias ga='git add'
-alias gc='git commit'
-alias gp='git push'
-alias gl='git pull'
-alias gd='git diff'
-alias gb='git branch'
-alias gco='git checkout'
-
 # npm aliases
 alias ni='npm install'
 alias nid='npm install --save-dev'
@@ -174,3 +164,11 @@ fi
 if [ -f "$HOME/.zshrc.local" ]; then
   source "$HOME/.zshrc.local"
 fi
+
+# Claude Code — run with permissions bypassed
+alias claude='claude --dangerously-skip-permissions'
+
+# PDF compression — recompresses images, preserves vectors
+alias pdfsqueeze='uv run ~/.local/bin/pdfsqueeze.py'
+
+export PATH="$HOME/.local/bin:$PATH"

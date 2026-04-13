@@ -6,6 +6,7 @@ brew "zoxide"
 brew "ffmpeg"
 brew "tesseract"
 brew "yt-dlp"
+brew "uv"
 
 # Terminal & Editor
 cask "warp"
@@ -33,7 +34,6 @@ cask "imageoptim"
 # Utilities
 cask "flux-app"
 cask "meetingbar"
-cask "pdf-squeezer"
 cask "transmit"
 
 # Personal only (skip on work machines)

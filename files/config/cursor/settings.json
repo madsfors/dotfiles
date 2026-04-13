@@ -15,6 +15,11 @@
   "editor.renderWhitespace": "selection",
   "editor.bracketPairColorization.enabled": true,
   "editor.guides.bracketPairs": true,
+  "editor.wordWrap": "wordWrapColumn",
+  "editor.wordWrapColumn": 100,
+  "editor.cursorSurroundingLines": 15,
+  "editor.cursorSurroundingLinesStyle": "all",
+  "editor.scrollBeyondLastLine": true,
   "[astro]": {
     "editor.defaultFormatter": "astro-build.astro-vscode"
   },

@@ -108,6 +108,17 @@ install_dotfiles() {
     done
   fi
 
+  # Link scripts from files/bin/ to ~/.local/bin/
+  if [ -d "$DOTFILES_ROOT/files/bin" ]; then
+    info 'linking bin scripts'
+    mkdir -p "$HOME/.local/bin"
+
+    for src in $(find -H "$DOTFILES_ROOT/files/bin" -maxdepth 1 -type f); do
+      dst="$HOME/.local/bin/$(basename "${src}")"
+      link_file "$src" "$dst"
+    done
+  fi
+
   # Link Cursor settings if they exist
   if [ -f "$DOTFILES_ROOT/files/config/cursor/settings.json" ]; then
     info 'linking Cursor settings'
