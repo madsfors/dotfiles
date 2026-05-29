@@ -172,3 +172,6 @@ alias claude='claude --dangerously-skip-permissions'
 alias pdfsqueeze='uv run ~/.local/bin/pdfsqueeze.py'
 
 export PATH="$HOME/.local/bin:$PATH"
+
+# bun completions
+[ -s "/Users/mafo/.bun/_bun" ] && source "/Users/mafo/.bun/_bun"
