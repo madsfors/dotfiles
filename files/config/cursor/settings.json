@@ -1,6 +1,5 @@
 {
   "workbench.colorTheme": "Cursor Dark",
-  "workbench.iconTheme": "material-icon-theme",
   "workbench.startupEditor": "none",
   "workbench.sideBar.location": "right",
   "editor.fontSize": 18,
@@ -8,7 +7,6 @@
   "editor.tabSize": 2,
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.accessibilitySupport": "off",
   "editor.stickyScroll.enabled": false,
   "editor.minimap.enabled": false,
   "editor.lineNumbers": "on",
@@ -17,8 +15,6 @@
   "editor.guides.bracketPairs": true,
   "editor.wordWrap": "wordWrapColumn",
   "editor.wordWrapColumn": 100,
-  "editor.cursorSurroundingLines": 15,
-  "editor.cursorSurroundingLinesStyle": "all",
   "editor.scrollBeyondLastLine": true,
   "[astro]": {
     "editor.defaultFormatter": "astro-build.astro-vscode"
@@ -29,9 +25,7 @@
   "files.insertFinalNewline": true,
   "window.zoomLevel": 2,
   "cursor.composer.shouldChimeAfterChatFinishes": true,
-  "cursor.cpp.disabledLanguages": ["plaintext", "markdown"],
-  "supermaven.enable": {
-    "*": false
-  },
-  "redhat.telemetry.enabled": false
+  "redhat.telemetry.enabled": false,
+  "editor.accessibilitySupport": "off",
+  "window.autoDetectColorScheme": false
 }
