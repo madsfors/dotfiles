@@ -127,6 +127,34 @@ install_dotfiles() {
   fi
 }
 
+install_agent_config() {
+  if [ ! -d "$DOTFILES_ROOT/agents" ]; then
+    return
+  fi
+
+  info 'installing agent config'
+
+  local overwrite_all=false backup_all=false skip_all=false
+
+  mkdir -p "$HOME/.claude"
+
+  if [ -d "$DOTFILES_ROOT/agents/skills" ]; then
+    link_file "$DOTFILES_ROOT/agents/skills" "$HOME/.claude/skills"
+  fi
+
+  if [ -d "$DOTFILES_ROOT/agents/agents" ]; then
+    link_file "$DOTFILES_ROOT/agents/agents" "$HOME/.claude/agents"
+  fi
+
+  if [ -f "$DOTFILES_ROOT/agents/settings/claude/settings.json" ]; then
+    link_file "$DOTFILES_ROOT/agents/settings/claude/settings.json" "$HOME/.claude/settings.json"
+  fi
+
+  if [ -f "$DOTFILES_ROOT/agents/settings/claude/statusline.sh" ]; then
+    link_file "$DOTFILES_ROOT/agents/settings/claude/statusline.sh" "$HOME/.claude/statusline.sh"
+  fi
+}
+
 install_oh_my_zsh() {
   if [ ! -d "$HOME/.oh-my-zsh" ]; then
     info "Installing oh-my-zsh"
@@ -166,6 +194,7 @@ echo ''
 install_oh_my_zsh
 install_zsh_plugins
 install_dotfiles
+install_agent_config
 
 echo ''
 echo '✅ All dotfiles installed!'

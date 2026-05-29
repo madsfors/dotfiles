@@ -54,6 +54,8 @@ brew bundle --file=Brewfile
 | Shell (zshrc) | `dot/zshrc` | Symlinked — edits sync automatically |
 | Git config | `dot/gitconfig` | Symlinked — edits sync automatically |
 | Cursor settings | `files/config/cursor/settings.json` | Symlinked — edits sync automatically |
+| Agent skills | `agents/skills` | Symlinked — one shared source of truth |
+| Claude Code settings | `agents/settings/claude` | Symlinked — edits sync automatically |
 | macOS prefs | `script/macos-defaults` | One-way — update script if you change prefs |
 | Apps | `Brewfile` | One-way — update manually if you add/remove apps |
 

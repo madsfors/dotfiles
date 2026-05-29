@@ -57,6 +57,10 @@ cd ~/.dotfiles
 ~/.dotfiles/
 ├── Brewfile                 # Homebrew packages and applications
 ├── README.md               # This file
+├── agents/                 # Shared coding-agent config
+│   ├── skills/             # Single source of truth for agent skills
+│   ├── agents/             # Custom agent definitions
+│   └── settings/           # Tool-specific agent settings
 ├── dot/                    # Dotfiles (symlinked to ~/)
 │   ├── gitconfig          # Git configuration
 │   ├── gitignore_global   # Global gitignore

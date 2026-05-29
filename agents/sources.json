@@ -1,0 +1,14 @@
+{
+  "skills": {
+    "ask-questions-if-underspecified": {
+      "source": "https://github.com/mikker/dotfiles/tree/master/agents.symlink/skills/ask-questions-if-underspecified",
+      "importedAt": "2026-05-26",
+      "status": "copied"
+    },
+    "proper-fix": {
+      "source": "https://github.com/mikker/dotfiles/tree/master/agents.symlink/skills/proper-fix",
+      "importedAt": "2026-05-26",
+      "status": "copied"
+    }
+  }
+}
