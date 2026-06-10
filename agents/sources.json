@@ -1,5 +1,15 @@
 {
   "skills": {
+    "last30days": {
+      "source": "https://github.com/mvanhorn/last30days-skill/tree/main/skills/last30days",
+      "version": "3.3.2",
+      "importedAt": "2026-06-10",
+      "status": "copied",
+      "exclude": [
+        "assets/"
+      ],
+      "notes": "Vendored without assets/ (14M of unreferenced demo media). Needs SCRAPECREATORS_API_KEY etc. for full source coverage; Reddit/HN/Polymarket/GitHub work keyless. Run script/update-skill last30days to re-vendor."
+    },
     "ask-questions-if-underspecified": {
       "source": "https://github.com/mikker/dotfiles/tree/master/agents.symlink/skills/ask-questions-if-underspecified",
       "importedAt": "2026-05-26",

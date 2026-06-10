@@ -1,0 +1,129 @@
+#!/usr/bin/env bash
+
+# Re-vendor a copied agent skill from its upstream git source.
+#
+# Skills under agents/skills/ are vendored copies (not submodules), tracked in
+# agents/sources.json. This re-pulls the latest upstream files, applies the
+# skill's "exclude" list, and bumps "version" + "importedAt" in sources.json.
+#
+# Usage:
+#   script/update-skill <skill-name>   # update one skill
+#   script/update-skill --all          # update every copied, git-sourced skill
+
+set -euo pipefail
+
+DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+SOURCES="$DOTFILES_ROOT/agents/sources.json"
+SKILLS_DIR="$DOTFILES_ROOT/agents/skills"
+
+info()    { printf "  [ \033[00;34m..\033[0m ] %s\n" "$1"; }
+success() { printf "  [ \033[00;32mOK\033[0m ] %s\n" "$1"; }
+fail()    { printf "  [\033[0;31mFAIL\033[0m] %s\n" "$1"; exit 1; }
+
+[ -f "$SOURCES" ] || fail "sources.json not found at $SOURCES"
+command -v git >/dev/null     || fail "git is required"
+command -v rsync >/dev/null   || fail "rsync is required"
+command -v python3 >/dev/null || fail "python3 is required"
+
+update_one() {
+  local name="$1"
+
+  # Pull source/exclude metadata for this skill out of sources.json.
+  local meta
+  meta="$(python3 - "$SOURCES" "$name" <<'PY'
+import json, sys
+sources, name = sys.argv[1], sys.argv[2]
+data = json.load(open(sources))
+entry = data.get("skills", {}).get(name)
+if not entry:
+    sys.exit(f"skill '{name}' not in sources.json")
+if entry.get("status") != "copied":
+    sys.exit(f"skill '{name}' is not status=copied")
+src = entry.get("source", "")
+if "/tree/" not in src:
+    sys.exit(f"skill '{name}' source is not a github /tree/ URL: {src}")
+base, rest = src.split("/tree/", 1)
+branch, _, subpath = rest.partition("/")
+print(base)                                  # repo URL
+print(branch)                                # branch/ref
+print(subpath)                               # subpath within repo
+print("\n".join(entry.get("exclude", [])))   # excludes (may be empty)
+PY
+)" || fail "$meta"
+
+  local repo branch subpath
+  repo="$(sed -n '1p' <<<"$meta")"
+  branch="$(sed -n '2p' <<<"$meta")"
+  subpath="$(sed -n '3p' <<<"$meta")"
+  local excludes
+  excludes="$(sed -n '4,$p' <<<"$meta")"
+
+  info "Updating '$name' from $repo ($branch)"
+
+  local tmp
+  tmp="$(mktemp -d)"
+
+  git clone --depth 1 --branch "$branch" "$repo" "$tmp/repo" >/dev/null 2>&1 \
+    || { rm -rf "$tmp"; fail "clone failed for $repo@$branch"; }
+
+  local upstream="$tmp/repo/$subpath"
+  [ -d "$upstream" ] || { rm -rf "$tmp"; fail "subpath '$subpath' not found in repo"; }
+
+  # Detect version from CHANGELOG top entry, e.g. "## [3.3.2]".
+  local version=""
+  if [ -f "$tmp/repo/CHANGELOG.md" ]; then
+    version="$(grep -m1 -oE '## \[[0-9]+\.[0-9]+\.[0-9]+\]' "$tmp/repo/CHANGELOG.md" \
+      | tr -d '#[] ' || true)"
+  fi
+
+  # Build rsync excludes from the skill's exclude list.
+  local rsync_args=(-a --delete)
+  while IFS= read -r ex; do
+    [ -n "$ex" ] && rsync_args+=(--exclude "$ex")
+  done <<<"$excludes"
+
+  mkdir -p "$SKILLS_DIR/$name"
+  rsync "${rsync_args[@]}" "$upstream/" "$SKILLS_DIR/$name/"
+
+  # Bump version + importedAt in sources.json.
+  python3 - "$SOURCES" "$name" "$version" <<'PY'
+import json, sys, datetime
+sources, name, version = sys.argv[1], sys.argv[2], sys.argv[3]
+data = json.load(open(sources))
+entry = data["skills"][name]
+if version:
+    entry["version"] = version
+entry["importedAt"] = datetime.date.today().isoformat()
+json.dump(data, open(sources, "w"), indent=2)
+open(sources, "a").write("\n")
+PY
+
+  rm -rf "$tmp"
+  success "$name updated${version:+ to $version}"
+}
+
+main() {
+  local target="${1:-}"
+  [ -n "$target" ] || fail "usage: script/update-skill <skill-name> | --all"
+
+  if [ "$target" = "--all" ]; then
+    local names
+    names="$(python3 - "$SOURCES" <<'PY'
+import json, sys
+data = json.load(open(sys.argv[1]))
+for n, e in data.get("skills", {}).items():
+    if e.get("status") == "copied" and "/tree/" in e.get("source", ""):
+        print(n)
+PY
+)"
+    [ -n "$names" ] || fail "no copied, git-sourced skills found"
+    while IFS= read -r n; do update_one "$n"; done <<<"$names"
+  else
+    update_one "$target"
+  fi
+
+  echo ""
+  success "Done. Review changes with: git -C \"$DOTFILES_ROOT\" diff"
+}
+
+main "$@"
