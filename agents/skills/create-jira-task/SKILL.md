@@ -13,7 +13,7 @@ Turn the conversation into a Jira task the assignee can execute without filler.
 - Use the `UX` project unless Mads names another project.
 - Use the `Task` issue type unless Mads explicitly requests another type.
 - If Mads does not name an assignee, ask before drafting.
-- Infer priority, labels, and due date using best judgment. Set only fields that add useful signal, and expose every inferred value in the preview.
+- Infer priority, labels, and due date using best judgment. Set only fields that add useful signal.
 - Include only links the assignee needs to complete the work.
 
 ## Writing
@@ -26,11 +26,11 @@ Turn the conversation into a Jira task the assignee can execute without filler.
 - Do not restate the title as context, scope, objective, and deliverables.
 - Ask when a material ambiguity would change the work instead of inventing scope.
 
-If Cursor writes a description, end it with:
+Every task must include this attribution at the end of its description:
 
 `🤖 Created by Cursor on behalf of Mads Fors (MAFO).`
 
-Do not add attribution to title-only tasks.
+When the title needs no supporting description, use the attribution as the entire description.
 
 ## Workflow
 
@@ -39,28 +39,13 @@ Do not add attribution to title-only tasks.
 3. If a likely duplicate exists, show its Jira link and ask whether Mads still wants a new task.
 4. Resolve the named assignee to the correct Jira account.
 5. Draft the smallest task that remains independently actionable.
-6. Show a compact preview with every field that will be set.
-7. Wait for explicit approval before creating the task.
-8. Create the issue and verify its title, description, project, type, assignee, and inferred metadata.
-
-## Preview
-
-Show only fields that will be set:
-
-```text
-UX · Task · [assignee]
-[title]
-
-[description, when needed]
-
-Priority: [priority] · Due: [date] · Labels: [labels]
-```
-
-End with a short approval question.
+6. If the action, project, and assignee are clear, create the task directly.
+7. Ask one focused question only when a missing decision would materially change the task.
+8. Verify the created issue's title, description, project, type, assignee, attribution, and inferred metadata.
 
 ## Response
 
-After creation, respond with one short line containing the title, assignee, and Jira link.
+After creation, respond with one short line containing the title, assignee, and Jira link. Mention non-default inferred metadata only when Mads should know about it.
 
 ## Calibration
 
