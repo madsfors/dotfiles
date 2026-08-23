@@ -1,0 +1,8 @@
+diff --git a/agents/openai.yaml b/agents/openai.yaml
+new file mode 100644
+index 0000000..5b1f887
+--- /dev/null
++++ b/agents/openai.yaml
+@@ -0,0 +1,2 @@
++policy:
++  allow_implicit_invocation: false

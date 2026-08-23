@@ -1,63 +1,49 @@
 ---
 name: workflow
-description: "Workflow orchestration for complex coding tasks. Use for ANY non-trivial task (3+ steps or architectural decisions) to enforce planning, subagent strategy, self-improvement, verification, elegance, and autonomous bug fixing. Triggers: multi-step implementation, bug fixes, refactoring, architectural changes, or any task requiring structured execution."
+description: Orchestrate complex coding implementations, bug fixes, refactors, and architectural changes that genuinely require a multi-step plan and verification. Use when work spans several dependent changes or the user asks for structured execution. Do not use for read-only questions, research, audits, strategy discussions, or ordinary one-pass edits.
 ---
 
-## Workflow Orchestration
+# Workflow orchestration
 
-### 1. Plan Mode Default
+Use this skill only when structure materially improves a complex coding task. Match the ceremony to the work instead of turning every multi-step request into a project-management exercise.
 
-- Enter plan mode for ANY non-trivial task (3+ steps or architectural decisions)
-- If something goes sideways, STOP and re-plan immediately — don't keep pushing
-- Use plan mode for verification steps, not just building
-- Write detailed specs upfront to reduce ambiguity
+## Plan
 
-### 2. Subagent Strategy
+- Inspect the relevant code and constraints before committing to an approach.
+- Define the outcome, dependent steps, risks, and verification.
+- Track the plan with the environment's plan mechanism when available.
+- Create `tasks/todo.md`, `tasks/lessons.md`, or similar repository files only when the repository already uses them or the user asks for them.
+- If evidence invalidates the approach, stop and revise the plan.
 
-- Use subagents liberally to keep main context window clean
-- Offload research, exploration, and parallel analysis to subagents
-- For complex problems, throw more compute at it via subagents
-- One task per subagent for focused execution
+## Delegation
 
-### 3. Self-Improvement Loop
+- Default to one agent when the task can be completed coherently in one pass.
+- Delegate only when parallel breadth, independent investigation, or adversarial review adds meaningful value.
+- Give each delegated task a bounded scope and clear file ownership.
+- Do not delegate merely to satisfy this workflow.
 
-- After ANY correction from the user: update `tasks/lessons.md` with the pattern
-- Write rules for yourself that prevent the same mistake
-- Ruthlessly iterate on these lessons until mistake rate drops
-- Review lessons at session start for relevant project
+## Execute
 
-### 4. Verification Before Done
+- Prefer the smallest root-cause change that solves the problem.
+- Keep changes scoped to the requested outcome and preserve unrelated work.
+- For bug reports, inspect the evidence and fix the issue autonomously when authority is clear.
+- Reconsider the design when a fix adds another workaround layer or unnecessary abstraction.
 
-- Never mark a task complete without proving it works
-- Diff behavior between main and your changes when relevant
-- Ask yourself: "Would a staff engineer approve this?"
-- Run tests, check logs, demonstrate correctness
+## Verify
 
-### 5. Demand Elegance (Balanced)
+- Prove the relevant behavior before reporting completion.
+- Run focused tests, checks, or comparisons proportional to the risk.
+- Distinguish verified results from checks that could not be run.
+- Review the final diff for unnecessary complexity and unintended blast radius.
 
-- For non-trivial changes: pause and ask "is there a more elegant way?"
-- If a fix feels hacky: "Knowing everything I know now, implement the elegant solution"
-- Skip this for simple, obvious fixes — don't over-engineer
-- Challenge your own work before presenting it
+## Learn from corrections
 
-### 6. Autonomous Bug Fixing
+- Apply user corrections to the current work immediately.
+- Propose a durable rule only when the pattern is likely to recur.
+- Do not write lessons, memories, or project instructions unless the user authorizes that persistence.
 
-- When given a bug report: just fix it. Don't ask for hand-holding
-- Point at logs, errors, failing tests — then resolve them
-- Zero context switching required from the user
-- Go fix failing CI tests without being told how
+## Report
 
-## Task Management
-
-1. **Plan First**: Write plan to `tasks/todo.md` with checkable items
-2. **Verify Plan**: Check in before starting implementation
-3. **Track Progress**: Mark items complete as you go
-4. **Explain Changes**: High-level summary at each step
-5. **Document Results**: Add review section to `tasks/todo.md`
-6. **Capture Lessons**: Update `tasks/lessons.md` after corrections
-
-## Core Principles
-
-- **Simplicity First**: Make every change as simple as possible. Impact minimal code.
-- **No Laziness**: Find root causes. No temporary fixes. Senior developer standards.
-- **Minimal Impact**: Changes should only touch what's necessary. Avoid introducing bugs.
+- Lead with the outcome.
+- Summarize material changes and verification.
+- Name unresolved risks or decisions without narrating routine tool use.

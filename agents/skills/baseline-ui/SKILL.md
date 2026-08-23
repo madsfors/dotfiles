@@ -7,6 +7,8 @@ description: Validates animation durations, enforces typography scale, checks co
 
 Enforces an opinionated UI baseline to prevent AI-generated interface slop.
 
+Use this skill for Tailwind-specific baseline constraints. Defer domain decisions to `accessibility`, `better-layout`, `better-writing`, `better-typography`, `better-colors`, and `make-interfaces-feel-better` when those skills are loaded.
+
 ## How to use
 
 - `/baseline-ui`
@@ -47,7 +49,7 @@ Enforces an opinionated UI baseline to prevent AI-generated interface slop.
 
 ## Animation
 
-- NEVER add animation unless it is explicitly requested
+- Do not add decorative animation unless it is requested or clearly improves state continuity
 - MUST animate only compositor props (`transform`, `opacity`)
 - NEVER animate layout properties (`width`, `height`, `top`, `left`, `margin`, `padding`)
 - SHOULD avoid animating paint properties (`background`, `color`) except for small, local UI (text, icons)
@@ -60,7 +62,7 @@ Enforces an opinionated UI baseline to prevent AI-generated interface slop.
 
 ## Typography
 
-- MUST use `text-balance` for headings and `text-pretty` for body/paragraphs
+- Follow `better-typography`; use `text-balance` for suitable headings and reserve `text-pretty` for short UI copy rather than long-form text
 - MUST use `tabular-nums` for data
 - SHOULD use `truncate` or `line-clamp` for dense UI
 - NEVER modify `letter-spacing` (`tracking-`) unless explicitly requested
@@ -83,6 +85,6 @@ Enforces an opinionated UI baseline to prevent AI-generated interface slop.
 - NEVER use purple or multicolor gradients
 - NEVER use glow effects as primary affordances
 - SHOULD use Tailwind CSS default shadow scale unless explicitly requested
-- MUST give empty states one clear next action
+- Give empty states one clear next action when recovery or progression exists; wording follows `better-writing`
 - SHOULD limit accent color usage to one per view
 - SHOULD use existing theme or Tailwind CSS color tokens before introducing new ones

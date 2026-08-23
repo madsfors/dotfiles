@@ -1,5 +1,96 @@
 {
   "skills": {
+    "emil-prototype": {
+      "source": "https://github.com/emilkowalski/skills/tree/main/skills/prototype",
+      "frontmatterName": "emil-prototype",
+      "include": [
+        "LICENSE"
+      ],
+      "importedAt": "2026-08-23",
+      "status": "adapted",
+      "patch": "agents/patches/emil-prototype.patch",
+      "notes": "Vendored with the required skill name change from prototype to emil-prototype and an OpenAI explicit-only policy matching upstream's disable-model-invocation setting.",
+      "revision": "d23d7f88a2e21c9e4b1418c7abe420f5c1052ba7"
+    },
+    "accessibility": {
+      "source": "https://github.com/jakubkrehel/skills/tree/main/skills/better-accessibility",
+      "frontmatterName": "accessibility",
+      "include": [
+        "LICENSE"
+      ],
+      "status": "adapted",
+      "patch": "agents/patches/accessibility.patch",
+      "notes": "Replaces the previous accessibility skill. Keeps WCAG conformance levels explicit and treats the global reduced-motion override as a temporary migration aid.",
+      "revision": "6c43b20ce00f720eed854591abe480127629c191",
+      "importedAt": "2026-08-23"
+    },
+    "better-colors": {
+      "source": "https://github.com/jakubkrehel/skills/tree/main/skills/better-colors",
+      "include": [
+        "LICENSE"
+      ],
+      "status": "adapted",
+      "patch": "agents/patches/better-colors.patch",
+      "notes": "Keeps WCAG 2.2 normative, labels APCA advisory, removes unsupported contrast and gamut absolutes, and requires deterministic color calculations.",
+      "revision": "6c43b20ce00f720eed854591abe480127629c191",
+      "importedAt": "2026-08-23"
+    },
+    "better-interface": {
+      "source": "https://github.com/jakubkrehel/skills/tree/main/skills/better-interface",
+      "include": [
+        "LICENSE"
+      ],
+      "status": "adapted",
+      "patch": "agents/patches/better-interface.patch",
+      "notes": "Maps upstream domain owners to local skill names and limits review verification to known read-only commands.",
+      "revision": "6c43b20ce00f720eed854591abe480127629c191",
+      "importedAt": "2026-08-23"
+    },
+    "better-layout": {
+      "source": "https://github.com/jakubkrehel/skills/tree/main/skills/better-layout",
+      "include": [
+        "LICENSE"
+      ],
+      "status": "adapted",
+      "patch": "agents/patches/better-layout.patch",
+      "notes": "Maps sibling references to canonical local skill names and corrects logical safe-area handling for RTL.",
+      "revision": "6c43b20ce00f720eed854591abe480127629c191",
+      "importedAt": "2026-08-23"
+    },
+    "better-typography": {
+      "source": "https://github.com/jakubkrehel/skills/tree/main/skills/better-typography",
+      "include": [
+        "LICENSE"
+      ],
+      "status": "adapted",
+      "patch": "agents/patches/better-typography.patch",
+      "notes": "Maps accessibility handoffs to the canonical local name and softens incorrect absolutes around font formats and font smoothing.",
+      "revision": "6c43b20ce00f720eed854591abe480127629c191",
+      "importedAt": "2026-08-23"
+    },
+    "better-writing": {
+      "source": "https://github.com/jakubkrehel/skills/tree/main/skills/better-writing",
+      "include": [
+        "LICENSE"
+      ],
+      "status": "adapted",
+      "patch": "agents/patches/better-writing.patch",
+      "notes": "Vendored with accessibility handoffs mapped to the canonical local skill name.",
+      "revision": "6c43b20ce00f720eed854591abe480127629c191",
+      "importedAt": "2026-08-23"
+    },
+    "make-interfaces-feel-better": {
+      "source": "https://github.com/jakubkrehel/skills/tree/main/skills/better-ui",
+      "frontmatterName": "make-interfaces-feel-better",
+      "include": [
+        "LICENSE"
+      ],
+      "status": "adapted",
+      "patch": "agents/patches/make-interfaces-feel-better.patch",
+      "notes": "Replaces the previous skill with upstream better-ui while deferring context-specific motion decisions to the local Apple and animation skills.",
+      "revision": "6c43b20ce00f720eed854591abe480127629c191",
+      "importedAt": "2026-08-23"
+    },
     "last30days": {
       "source": "https://github.com/mvanhorn/last30days-skill/tree/main/skills/last30days",
       "version": "3.3.2",
@@ -19,6 +110,14 @@
       "source": "https://github.com/mikker/dotfiles/tree/master/agents.symlink/skills/proper-fix",
       "importedAt": "2026-05-26",
       "status": "copied"
+    },
+    "grill-me": {
+      "source": "https://github.com/mattpocock/skills/tree/main/skills/productivity/grilling",
+      "frontmatterName": "grill-me",
+      "importedAt": "2026-08-20",
+      "status": "copied",
+      "notes": "Vendored from the reusable grilling implementation and renamed to grill-me; upstream grill-me is a Claude-specific wrapper around this skill.",
+      "revision": "0ab1b63a410a03d3627979a109c8695de27af954"
     }
   }
 }

@@ -1,6 +1,6 @@
 ---
 name: web-interface-guidelines
-description: Review UI code for Vercel Web Interface Guidelines compliance. Use when reviewing frontend code for accessibility, performance, animation, forms, and interaction quality.
+description: Review UI code specifically against the Vercel Web Interface Guidelines. Use when the user asks for that guideline review or a broad Vercel-style interaction-quality audit. Do not trigger merely because frontend code is being edited.
 ---
 
 # Web Interface Guidelines
@@ -9,13 +9,15 @@ Review these files for compliance: $ARGUMENTS
 
 Read files, check against rules below. Output concise but comprehensive—sacrifice grammar for brevity. High signal-to-noise.
 
+Treat this as a broad, fast review. Domain skills are authoritative when loaded: `accessibility` for accessibility requirements, `better-layout` for layout, `better-writing` for source copy, `better-typography` for visual text behavior, `better-colors` for color, and `make-interfaces-feel-better` for visual polish.
+
 ## Rules
 
 ### Accessibility
 
 - Icon-only buttons need `aria-label`
 - Form controls need `<label>` or `aria-label`
-- Interactive elements need keyboard handlers (`onKeyDown`/`onKeyUp`)
+- Custom interactive widgets need the keyboard behavior for their role; native controls already provide it
 - `<button>` for actions, `<a>`/`<Link>` for navigation (not `<div onClick>`)
 - Images need `alt` (or `alt=""` if decorative)
 - Decorative icons need `aria-hidden="true"`
@@ -41,7 +43,7 @@ Read files, check against rules below. Output concise but comprehensive—sacrif
 - Checkboxes/radios: label + control share single hit target (no dead zones)
 - Submit button stays enabled until request starts; spinner during request
 - Errors inline next to fields; focus first error on submit
-- Placeholders end with `…` and show example pattern
+- Placeholders may show an example when useful; wording and punctuation follow `better-writing` and the product's conventions
 - `autocomplete="off"` on non-auth fields to avoid password manager triggers
 - Warn before navigation with unsaved changes (`beforeunload` or router guard)
 
@@ -132,8 +134,9 @@ Read files, check against rules below. Output concise but comprehensive—sacrif
 
 ### Content & Copy
 
+- Follow `better-writing` and the product's established voice and terminology
 - Active voice: "Install the CLI" not "The CLI will be installed"
-- Title Case for headings/buttons (Chicago style)
+- Match the product's casing; default to sentence case when no convention exists
 - Numerals for counts: "8 deployments" not "eight"
 - Specific button labels: "Save API Key" not "Continue"
 - Error messages include fix/next step, not just problem

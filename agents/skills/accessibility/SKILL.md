@@ -1,440 +1,148 @@
 ---
 name: accessibility
-description: Audit and improve web accessibility following WCAG 2.2 guidelines. Use when asked to "improve accessibility", "a11y audit", "WCAG compliance", "screen reader support", "keyboard navigation", or "make accessible".
-license: MIT
-metadata:
-  author: web-quality-skills
-  version: "1.1"
+description: Accessibility engineering for product interfaces, from focus states and keyboard support to ARIA, forms, and screen readers. Use when building or reviewing UI components, modals, menus, forms, custom widgets, or when the user says "make this accessible" or reports keyboard or screen-reader issues. Triggers on accessibility, a11y, WCAG, aria, focus ring, focus-visible, focus trap, keyboard navigation, tab order, tabindex, screen reader, sr-only, aria-live, alt text, hit area, touch target, prefers-reduced-motion, autoplay, toast duration, skip link, semantic HTML, aria-label, form errors, disabled buttons, "not keyboard accessible".
 ---
 
-# Accessibility (a11y)
-
-Comprehensive accessibility guidelines based on WCAG 2.2 and Lighthouse accessibility audits. Goal: make content usable by everyone, including people with disabilities.
-
-## WCAG Principles: POUR
-
-| Principle | Description |
-|-----------|-------------|
-| **P**erceivable | Content can be perceived through different senses |
-| **O**perable | Interface can be operated by all users |
-| **U**nderstandable | Content and interface are understandable |
-| **R**obust | Content works with assistive technologies |
-
-## Conformance levels
-
-| Level | Requirement | Target |
-|-------|-------------|--------|
-| **A** | Minimum accessibility | Must pass |
-| **AA** | Standard compliance | Should pass (legal requirement in many jurisdictions) |
-| **AAA** | Enhanced accessibility | Nice to have |
-
----
-
-## Perceivable
-
-### Text alternatives (1.1)
-
-**Images require alt text:**
-```html
-<!-- ❌ Missing alt -->
-<img src="chart.png">
-
-<!-- ✅ Descriptive alt -->
-<img src="chart.png" alt="Bar chart showing 40% increase in Q3 sales">
-
-<!-- ✅ Decorative image (empty alt) -->
-<img src="decorative-border.png" alt="" role="presentation">
-
-<!-- ✅ Complex image with longer description -->
-<figure>
-  <img src="infographic.png" alt="2024 market trends infographic" 
-       aria-describedby="infographic-desc">
-  <figcaption id="infographic-desc">
-    <!-- Detailed description -->
-  </figcaption>
-</figure>
-```
-
-**Icon buttons need accessible names:**
-```html
-<!-- ❌ No accessible name -->
-<button><svg><!-- menu icon --></svg></button>
-
-<!-- ✅ Using aria-label -->
-<button aria-label="Open menu">
-  <svg aria-hidden="true"><!-- menu icon --></svg>
-</button>
-
-<!-- ✅ Using visually hidden text -->
-<button>
-  <svg aria-hidden="true"><!-- menu icon --></svg>
-  <span class="visually-hidden">Open menu</span>
-</button>
-```
-
-**Visually hidden class:**
-```css
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-```
-
-### Color contrast (1.4.3, 1.4.6)
-
-| Text Size | AA minimum | AAA enhanced |
-|-----------|------------|--------------|
-| Normal text (< 18px / < 14px bold) | 4.5:1 | 7:1 |
-| Large text (≥ 18px / ≥ 14px bold) | 3:1 | 4.5:1 |
-| UI components & graphics | 3:1 | 3:1 |
-
-```css
-/* ❌ Low contrast (2.5:1) */
-.low-contrast {
-  color: #999;
-  background: #fff;
-}
-
-/* ✅ Sufficient contrast (7:1) */
-.high-contrast {
-  color: #333;
-  background: #fff;
-}
-
-/* ✅ Focus states need contrast too */
-:focus-visible {
-  outline: 2px solid #005fcc;
-  outline-offset: 2px;
-}
-```
-
-**Don't rely on color alone:**
-```html
-<!-- ❌ Only color indicates error -->
-<input class="error-border">
-<style>.error-border { border-color: red; }</style>
-
-<!-- ✅ Color + icon + text -->
-<div class="field-error">
-  <input aria-invalid="true" aria-describedby="email-error">
-  <span id="email-error" class="error-message">
-    <svg aria-hidden="true"><!-- error icon --></svg>
-    Please enter a valid email address
-  </span>
-</div>
-```
-
-### Media alternatives (1.2)
-
-```html
-<!-- Video with captions -->
-<video controls>
-  <source src="video.mp4" type="video/mp4">
-  <track kind="captions" src="captions.vtt" srclang="en" label="English" default>
-  <track kind="descriptions" src="descriptions.vtt" srclang="en" label="Descriptions">
-</video>
-
-<!-- Audio with transcript -->
-<audio controls>
-  <source src="podcast.mp3" type="audio/mp3">
-</audio>
-<details>
-  <summary>Transcript</summary>
-  <p>Full transcript text...</p>
-</details>
-```
-
----
-
-## Operable
-
-### Keyboard accessible (2.1)
-
-**All functionality must be keyboard accessible:**
-```javascript
-// ❌ Only handles click
-element.addEventListener('click', handleAction);
-
-// ✅ Handles both click and keyboard
-element.addEventListener('click', handleAction);
-element.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' || e.key === ' ') {
-    e.preventDefault();
-    handleAction();
-  }
-});
-```
-
-**No keyboard traps.** Users must be able to Tab into and out of every component. Use the [modal focus trap pattern](references/A11Y-PATTERNS.md#modal-focus-trap) for dialogs—the native `<dialog>` element handles this automatically.
-
-### Focus visible (2.4.7)
-
-```css
-/* ❌ Never remove focus outlines */
-*:focus { outline: none; }
-
-/* ✅ Use :focus-visible for keyboard-only focus */
-:focus {
-  outline: none;
-}
-
-:focus-visible {
-  outline: 2px solid #005fcc;
-  outline-offset: 2px;
-}
-
-/* ✅ Or custom focus styles */
-button:focus-visible {
-  box-shadow: 0 0 0 3px rgba(0, 95, 204, 0.5);
-}
-```
-
-### Focus not obscured (2.4.11) — new in 2.2
-
-When an element receives keyboard focus, it must not be entirely hidden by other author-created content such as sticky headers, footers, or overlapping panels. At Level AAA (2.4.12), no part of the focused element may be hidden.
-
-```css
-/* ✅ Account for sticky headers when scrolling to focused elements */
-:target {
-  scroll-margin-top: 80px;
-}
-
-/* ✅ Ensure focused items clear fixed/sticky bars */
-:focus {
-  scroll-margin-top: 80px;
-  scroll-margin-bottom: 60px;
-}
-```
-
-### Skip links (2.4.1)
-
-Provide a skip link so keyboard users can bypass repetitive navigation. See the [skip link pattern](references/A11Y-PATTERNS.md#skip-link) for full markup and styles.
-
-### Target size (2.5.8) — new in 2.2
-
-Interactive targets must be at least **24 × 24 CSS pixels** (AA). Exceptions: inline text links, elements where the browser controls the size, and targets where a 24px circle centered on the bounding box does not overlap another target.
-
-```css
-/* ✅ Minimum target size */
-button,
-[role="button"],
-input[type="checkbox"] + label,
-input[type="radio"] + label {
-  min-width: 24px;
-  min-height: 24px;
-}
-
-/* ✅ Comfortable target size (recommended 44×44) */
-.touch-target {
-  min-width: 44px;
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-```
-
-### Dragging movements (2.5.7) — new in 2.2
-
-Any action that requires dragging must have a single-pointer alternative (e.g., buttons, inputs). See the [dragging movements pattern](references/A11Y-PATTERNS.md#dragging-movements) for a sortable-list example.
-
-### Timing (2.2)
-
-```javascript
-// Allow users to extend time limits
-function showSessionWarning() {
-  const modal = createModal({
-    title: 'Session Expiring',
-    content: 'Your session will expire in 2 minutes.',
-    actions: [
-      { label: 'Extend session', action: extendSession },
-      { label: 'Log out', action: logout }
-    ],
-    timeout: 120000
-  });
-}
-```
-
-### Motion (2.3)
-
-```css
-/* Respect reduced motion preference */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-```
-
----
-
-## Understandable
-
-### Page language (3.1.1)
-
-```html
-<!-- ❌ No language specified -->
-<html>
-
-<!-- ✅ Language specified -->
-<html lang="en">
-
-<!-- ✅ Language changes within page -->
-<p>The French word for hello is <span lang="fr">bonjour</span>.</p>
-```
-
-### Consistent navigation (3.2.3)
-
-```html
-<!-- Navigation should be consistent across pages -->
-<nav aria-label="Main">
-  <ul>
-    <li><a href="/" aria-current="page">Home</a></li>
-    <li><a href="/products">Products</a></li>
-    <li><a href="/about">About</a></li>
-  </ul>
-</nav>
-```
-
-### Consistent help (3.2.6) — new in 2.2
-
-If a help mechanism (contact info, chat widget, FAQ link, self-help option) is repeated across multiple pages, it must appear in the **same relative order** each time. Users who rely on consistent placement shouldn't have to hunt for help on every page.
-
-### Form labels (3.3.2)
-
-Every input needs a programmatically associated label. See the [form labels pattern](references/A11Y-PATTERNS.md#form-labels) for explicit, implicit, and instructional examples.
-
-### Error handling (3.3.1, 3.3.3)
-
-Announce errors to screen readers with `role="alert"` or `aria-live`, set `aria-invalid="true"` on invalid fields, and focus the first error on submit. See the [error handling pattern](references/A11Y-PATTERNS.md#error-handling) for full markup and JS.
-
-### Redundant entry (3.3.7) — new in 2.2
-
-Don't force users to re-enter information they already provided in the same session. Auto-populate from earlier steps, or let users select from previously entered values. Exceptions: security re-confirmation and content that has expired.
-
-```html
-<!-- ✅ Auto-fill shipping address from billing -->
-<fieldset>
-  <legend>Shipping address</legend>
-  <label>
-    <input type="checkbox" id="same-as-billing" checked>
-    Same as billing address
-  </label>
-  <!-- Fields auto-populated when checked -->
-</fieldset>
-```
-
-### Accessible authentication (3.3.8) — new in 2.2
-
-Login flows must not rely on cognitive function tests (e.g., remembering a password, solving a puzzle) unless at least one of:
-- A copy-paste or autofill mechanism is available
-- An alternative method exists (e.g., passkey, SSO, email link)
-- The test uses object recognition or personal content (AA only; AAA removes this exception)
-
-```html
-<!-- ✅ Allow paste in password fields -->
-<input type="password" id="password" autocomplete="current-password">
-
-<!-- ✅ Offer passwordless alternatives -->
-<button type="button">Sign in with passkey</button>
-<button type="button">Email me a login link</button>
-```
-
----
-
-## Robust
-
-### ARIA usage (4.1.2)
-
-**Prefer native elements:**
-```html
-<!-- ❌ ARIA role on div -->
-<div role="button" tabindex="0">Click me</div>
-
-<!-- ✅ Native button -->
-<button>Click me</button>
-
-<!-- ❌ ARIA checkbox -->
-<div role="checkbox" aria-checked="false">Option</div>
-
-<!-- ✅ Native checkbox -->
-<label><input type="checkbox"> Option</label>
-```
-
-**When ARIA is needed,** use the correct roles and states. See the [ARIA tabs pattern](references/A11Y-PATTERNS.md#aria-tabs) for a complete tablist example.
-
-### Live regions (4.1.3)
-
-Use `aria-live` regions to announce dynamic content changes without moving focus. See the [live regions pattern](references/A11Y-PATTERNS.md#live-regions-and-notifications) for markup and a `showNotification()` helper.
-
----
-
-## Testing checklist
-
-### Automated testing
-```bash
-# Lighthouse accessibility audit
-npx lighthouse https://example.com --only-categories=accessibility
-
-# axe-core
-npm install @axe-core/cli -g
-axe https://example.com
-```
-
-### Manual testing
-
-- [ ] **Keyboard navigation:** Tab through entire page, use Enter/Space to activate
-- [ ] **Screen reader:** Test with VoiceOver (Mac), NVDA (Windows), or TalkBack (Android)
-- [ ] **Zoom:** Content usable at 200% zoom
-- [ ] **High contrast:** Test with Windows High Contrast Mode
-- [ ] **Reduced motion:** Test with `prefers-reduced-motion: reduce`
-- [ ] **Focus order:** Logical and follows visual order
-- [ ] **Target size:** Interactive elements meet 24×24px minimum
-
-See the [screen reader commands reference](references/A11Y-PATTERNS.md#screen-reader-commands) for VoiceOver and NVDA shortcuts.
-
----
-
-## Common issues by impact
-
-### Critical (fix immediately)
-1. Missing form labels
-2. Missing image alt text
-3. Insufficient color contrast
-4. Keyboard traps
-5. No focus indicators
-
-### Serious (fix before launch)
-1. Missing page language
-2. Missing heading structure
-3. Non-descriptive link text
-4. Auto-playing media
-5. Missing skip links
-
-### Moderate (fix soon)
-1. Missing ARIA labels on icons
-2. Inconsistent navigation
-3. Missing error identification
-4. Timing without controls
-5. Missing landmark regions
-
-## References
-
-- [WCAG 2.2 Quick Reference](https://www.w3.org/WAI/WCAG22/quickref/)
-- [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/)
-- [Deque axe Rules](https://dequeuniversity.com/rules/axe/)
-- [Web Quality Audit](../web-quality-audit/SKILL.md)
-- [WCAG criteria reference](references/WCAG.md)
-- [Accessibility code patterns](references/A11Y-PATTERNS.md)
+# Accessibility that comes with the craft
+
+Accessibility is not a compliance checkbox bolted on at the end; it is the floor for interface craft. Most of it is free if you use the platform: native elements ship with keyboard support, real labels announce themselves, and a visible focus ring is one CSS rule. Apply these principles when building or reviewing UI code, and match the project's existing styling system (Tailwind vs. plain CSS vs. CSS-in-JS) when applying fixes.
+
+When reviewing, walk the interface as a keyboard-only user first (every flow must complete without a mouse), then as a screen-reader user: does each control announce a name, a role, and its state? When unsure, prefer the platform default over a custom rebuild, and remove ARIA rather than add it.
+
+Rendered-pair contrast measurement and color remediation are covered by the `better-colors` skill; visual text sizing and iOS input zoom by `better-typography`; spatial RTL layout by `better-layout`.
+
+## Quick Reference
+
+| Category | When to Use |
+| --- | --- |
+| [Focus & Keyboard](focus-and-keyboard.md) | Focus rings, skip links, tabindex, focus trapping, APG keyboard patterns |
+| [Semantics & ARIA](semantics-and-aria.md) | Native elements first, button vs link, landmarks, accessible names, disabled states |
+| [Forms](forms.md) | Labels, autocomplete, error messaging, input types |
+| [Screen Readers](screen-readers.md) | Visually hidden content, live regions, toasts, alt text, SVG |
+| [Hit Areas](hit-areas.md) | Target sizes, expanding hit areas, collision rules |
+| [Motion & Zoom](motion-and-zoom.md) | `prefers-reduced-motion`, autoplay and timed UI, 200% zoom, reflow, rem vs px |
+
+## Core Principles
+
+### 1. Native Elements First
+
+The first rule of ARIA: don't use ARIA when a native element exists. `<button>` for actions, `<a href>` for navigation (it must support Cmd/Ctrl/middle-click), never `<div onClick>`. No ARIA is better than bad ARIA.
+
+### 2. Visible Focus Rings
+
+Style `:focus-visible`, not bare `:focus`, so keyboard users get a ring and mouse users usually don't. Prefer the browser's unmodified focus indicator. If the design needs a custom ring, use a project focus token or another explicit color and verify the complete indicator against every adjacent color it crosses; `currentColor` is acceptable only after the same check. A `2px` solid perimeter is a useful design default, not a universal Level AA requirement: WCAG 2.4.13's focus-area and contrast thresholds are Level AAA. Test against the project's actual conformance target. Never use `outline: none` without a verified replacement, and preserve system colors in forced-colors mode.
+
+### 3. Full Keyboard Support
+
+Every pointer interaction needs a keyboard path, following the ARIA APG patterns: Escape closes overlays, arrow keys move within composite widgets (tabs, menus, listboxes), Tab moves between widgets, Enter and Space activate. Only `tabindex="0"` (join the natural tab order) and `tabindex="-1"` (programmatic focus), never positive values, which break the natural order. Composite widgets use roving tabindex: the active item is `0`, all others `-1`.
+
+### 4. Trap and Restore Focus
+
+Modals set `inert` on the background content, move focus inside on open, and return focus to the trigger on close. Add `overscroll-behavior: contain` so background content doesn't scroll.
+
+### 5. Minimum Hit Area
+
+WCAG 2.5.8's Level AA baseline is a 24×24 CSS-pixel target or one of its defined spacing, equivalent-control, inline, user-agent, or essential exceptions. For easier activation, aim for 44×44px in touch contexts and 40×40px in desktop interfaces when density permits. Extend with a pseudo-element if the visible element should stay smaller. Never let extended hit areas overlap.
+
+### 6. Label and Type Every Control
+
+Every input gets a `<label for>` or wrapping `<label>`; a placeholder is never a label, and label and control share one hit target: no dead zones between a checkbox and its text. Add `autocomplete` with a meaningful `name`, and the correct `type` and `inputmode` for the keyboard. Never block paste; users paste passwords and one-time codes.
+
+### 7. Errors That Announce
+
+Keep submit enabled until the request starts, then disable with a spinner while keeping the original label. Validate on submit: mark failing fields with `aria-invalid="true"`, point `aria-describedby` at the inline error text, and focus the first invalid field. Use native `disabled` when a native control is genuinely unavailable. Use `aria-disabled="true"` only when retaining focusability or discoverability is intentional; then block pointer, keyboard, and form behavior in code and style the state explicitly.
+
+### 8. Accessible Names Everywhere
+
+Icon-only buttons need a descriptive `aria-label`. Visible label text must appear in the accessible name. Decorative elements get `aria-hidden="true"`, never on a focusable element.
+
+### 9. Don't Rely on Color Alone
+
+Status needs a redundant cue: icon, text, or underline alongside the color. Determine which WCAG contrast requirement applies from the content and state, then use `better-colors` to measure the rendered foreground/background pair. When contrast fails, report the pair and requirement it misses; do not change the project's colors unless asked.
+
+### 10. Honor prefers-reduced-motion
+
+Wrap motion in `@media (prefers-reduced-motion: no-preference)` so it is opt-in. Under reduced motion, replace slides and scales with opacity crossfades; kill parallax and autoplay entirely. Independent of the preference: autoplaying media needs a visible pause control, and toasts carrying actions or errors stay until dismissed.
+
+### 11. Announce Dynamic Content
+
+Use `aria-describedby` for field-specific validation, a polite live region (`role="status"`) for non-urgent updates not tied to a control such as toasts or result counts, and `role="alert"` only for urgent errors not tied to a control. For reliable repeated polite announcements, render a stable empty region before updating its text; dynamically inserted alerts have different support and must be tested with the target screen readers.
+
+### 12. Alt Text by Purpose
+
+Decorative images get `alt=""`, informative images describe the meaning, functional images describe the action: a search icon button is `alt="Search"`, not `alt="magnifying glass"`.
+
+### 13. Structure Is Navigation
+
+Use headings that describe their sections and form a coherent outline; one page-level `<h1>` and properly nested levels are the recommended default, not standalone WCAG pass/fail rules. Expose one visible primary `<main>` landmark. When repeated navigation or chrome precedes it, make a "Skip to content" link the first focusable element. Anchored headings get `scroll-margin-top`.
+
+### 14. Survive Zoom and Text Resize
+
+The page must work at 200% zoom and reflow at 320px width without horizontal scrolling. Use `min-height` instead of fixed `height` on text containers, prefer `rem` breakpoints where they fit the codebase's conventions, and never use `user-scalable=no` or `maximum-scale=1`.
+
+## Common Mistakes
+
+| Mistake | Fix |
+| --- | --- |
+| `outline: none` to remove the focus ring | Style `:focus-visible` instead; mouse clicks won't show it |
+| Custom focus color assumed to work everywhere | Verify the full indicator against every adjacent color and in forced-colors mode |
+| `<div onClick>` for a button or link | `<button>` for actions, `<a href>` for navigation |
+| Placeholder used as the only label | Add a visible `<label for>`; placeholders disappear on input |
+| Positive `tabindex` to fix focus order | Fix the DOM order; only use `0` and `-1` |
+| Repeated polite update inconsistently announced | Keep a stable empty status region and update its text; test the target screen readers |
+| `assertive` live region for a routine toast | Use `polite`; reserve `assertive` for errors |
+| `aria-hidden="true"` on a focusable element | Remove it or make the element non-focusable |
+| Functional icon alt describes the picture | Describe the action: `alt="Search"`, not `alt="magnifying glass"` |
+| `maximum-scale=1` to stop iOS input zoom | 16px input font on mobile (see `better-typography`); never block zoom |
+| Submit disabled until the form is valid | Keep it enabled; validate on submit and focus the first error |
+
+## Review Output Format
+
+Use this format only when the user asks for a standalone accessibility review. When `better-interface` orchestrates the review, provide domain evidence and findings to that skill and let its output format, severity scale, consolidation rules, cap, and verdict take precedence.
+
+Present the standalone review in two parts.
+
+### Findings
+
+Group all confirmed findings by principle. Use a markdown table with **Severity**, **Location**, **Before**, **After**, and **Why** columns. Never use separate "Before:" / "After:" lines.
+
+- **Severity**: `HIGH` prevents a task, hides content from assistive technology, or creates a systemic accessibility failure; `MEDIUM` makes an interaction meaningfully harder; `LOW` is isolated polish.
+- **Location**: cite `path/to/file:line`. If the artifact has no source files, cite the exact screen and component instead.
+- **Before / After**: show the current implementation and an actionable replacement.
+- **Why**: name the violated principle and its user impact.
+
+Consolidate a repeated systemic issue into one row and list every affected location. Omit principles with no findings.
+
+### Example
+
+#### Accessible names everywhere
+| Severity | Location | Before | After | Why |
+| --- | --- | --- | --- | --- |
+| HIGH | `src/Dialog.tsx:42` | `<button><XIcon /></button>` | Add `aria-label="Close"`; mark the icon `aria-hidden="true"` | The icon-only control has no accessible name |
+| HIGH | `src/Nav.tsx:18` | `<a href="/settings"><GearIcon /></a>` | Add `aria-label="Settings"` | The link destination is unavailable to screen readers |
+
+#### Visible focus rings
+| Severity | Location | Before | After | Why |
+| --- | --- | --- | --- | --- |
+| HIGH | `src/button.css:12` | `button:focus { outline: none; }` | `button:focus-visible { outline: 2px solid; outline-offset: 2px; }` | Keyboard users cannot see focus |
+| HIGH | `src/Menu.tsx:31` | `focus:outline-none` | `focus-visible:outline-2 focus-visible:outline-offset-2` | Menu navigation has no visible focus indicator |
+
+#### Errors that announce
+| Severity | Location | Before | After | Why |
+| --- | --- | --- | --- | --- |
+| HIGH | `src/EmailField.tsx:27` | Error shown only as `border-red-500` | Add `aria-invalid="true"` + `aria-describedby="email-error"` with inline error text | Color alone neither explains nor announces the error |
+| MEDIUM | `src/SignupForm.tsx:64` | Submit disabled until the form is valid | Keep submit enabled; on failure, focus the first invalid field | A disabled action hides what must be fixed |
+
+#### Minimum hit area
+| Severity | Location | Before | After | Why |
+| --- | --- | --- | --- | --- |
+| MEDIUM | `src/Toolbar.tsx:22` | `size-4` icon-only button | Extend the hit area to 44×44px with `after:absolute after:size-11` | The target is too small for reliable touch input |
+
+### Verification and Verdict
+
+After the findings:
+
+1. **Verification**: list the exact checks run and their observed results, including keyboard traversal, accessible-name inspection, and screen-reader or automated checks when applicable. If a check was not run, state what still needs verification.
+2. **Verdict**: `Block` if any `HIGH` finding remains, `Needs changes` if only `MEDIUM` or `LOW` findings remain, and `Approve` only when no actionable findings remain.
+
+When there are no findings, omit the tables, state "No actionable accessibility findings", report verification, and end with `Approve`.

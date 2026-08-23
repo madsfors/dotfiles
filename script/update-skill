@@ -4,7 +4,7 @@
 #
 # Skills under agents/skills/ are vendored copies (not submodules), tracked in
 # agents/sources.json. This re-pulls the latest upstream files, applies the
-# skill's "exclude" list, and bumps "version" + "importedAt" in sources.json.
+# skill's transforms, and records the fetched revision in sources.json.
 #
 # Usage:
 #   script/update-skill <skill-name>   # update one skill
@@ -37,8 +37,14 @@ data = json.load(open(sources))
 entry = data.get("skills", {}).get(name)
 if not entry:
     sys.exit(f"skill '{name}' not in sources.json")
-if entry.get("status") != "copied":
-    sys.exit(f"skill '{name}' is not status=copied")
+status = entry.get("status")
+if status not in {"copied", "adapted"}:
+    sys.exit(f"skill '{name}' is not status=copied or status=adapted")
+patch = entry.get("patch", "")
+if status == "adapted" and not patch:
+    sys.exit(f"adapted skill '{name}' has no patch")
+if status == "copied" and patch:
+    sys.exit(f"copied skill '{name}' must use status=adapted when it has a patch")
 src = entry.get("source", "")
 if "/tree/" not in src:
     sys.exit(f"skill '{name}' source is not a github /tree/ URL: {src}")
@@ -47,16 +53,18 @@ branch, _, subpath = rest.partition("/")
 print(base)                                  # repo URL
 print(branch)                                # branch/ref
 print(subpath)                               # subpath within repo
+print(patch)                                 # local patch path (may be empty)
 print("\n".join(entry.get("exclude", [])))   # excludes (may be empty)
 PY
 )" || fail "$meta"
 
-  local repo branch subpath
+  local repo branch subpath patch_rel
   repo="$(sed -n '1p' <<<"$meta")"
   branch="$(sed -n '2p' <<<"$meta")"
   subpath="$(sed -n '3p' <<<"$meta")"
+  patch_rel="$(sed -n '4p' <<<"$meta")"
   local excludes
-  excludes="$(sed -n '4,$p' <<<"$meta")"
+  excludes="$(sed -n '5,$p' <<<"$meta")"
 
   info "Updating '$name' from $repo ($branch)"
 
@@ -65,6 +73,10 @@ PY
 
   git clone --depth 1 --branch "$branch" "$repo" "$tmp/repo" >/dev/null 2>&1 \
     || { rm -rf "$tmp"; fail "clone failed for $repo@$branch"; }
+
+  local revision
+  revision="$(git -C "$tmp/repo" rev-parse HEAD)" \
+    || { rm -rf "$tmp"; fail "could not determine revision for $repo@$branch"; }
 
   local upstream="$tmp/repo/$subpath"
   [ -d "$upstream" ] || { rm -rf "$tmp"; fail "subpath '$subpath' not found in repo"; }
@@ -82,17 +94,96 @@ PY
     [ -n "$ex" ] && rsync_args+=(--exclude "$ex")
   done <<<"$excludes"
 
-  mkdir -p "$SKILLS_DIR/$name"
-  rsync "${rsync_args[@]}" "$upstream/" "$SKILLS_DIR/$name/"
+  local staged="$SKILLS_DIR/.${name}.staging.$$"
+  local backup="$SKILLS_DIR/.${name}.backup.$$"
+  rm -rf "$staged" "$backup"
+  mkdir -p "$staged"
+  rsync "${rsync_args[@]}" "$upstream/" "$staged/"
 
-  # Bump version + importedAt in sources.json.
-  python3 - "$SOURCES" "$name" "$version" <<'PY'
+  # Include explicitly tracked files from the upstream repository root.
+  local includes
+  includes="$(python3 - "$SOURCES" "$name" <<'PY'
+import json, sys
+data = json.load(open(sys.argv[1]))
+print("\n".join(data["skills"][sys.argv[2]].get("include", [])))
+PY
+)"
+  while IFS= read -r include; do
+    [ -z "$include" ] && continue
+    case "$include" in
+      /*|*".."*) rm -rf "$tmp" "$staged"; fail "unsafe include path: $include" ;;
+    esac
+    [ -e "$tmp/repo/$include" ] \
+      || { rm -rf "$tmp" "$staged"; fail "include not found: $include"; }
+    mkdir -p "$staged/$(dirname "$include")"
+    rsync -a "$tmp/repo/$include" "$staged/$include"
+  done <<<"$includes"
+
+  # Reapply documented local adaptations to the upstream source.
+  if [ -n "$patch_rel" ]; then
+    case "$patch_rel" in
+      /*|*".."*) rm -rf "$tmp" "$staged"; fail "unsafe patch path: $patch_rel" ;;
+    esac
+    local patch_file="$DOTFILES_ROOT/$patch_rel"
+    [ -f "$patch_file" ] \
+      || { rm -rf "$tmp" "$staged"; fail "patch not found: $patch_rel"; }
+    local staged_rel="${staged#"$DOTFILES_ROOT"/}"
+    [ "$staged_rel" != "$staged" ] \
+      || { rm -rf "$tmp" "$staged"; fail "staging path escaped dotfiles root"; }
+    git -C "$DOTFILES_ROOT" apply --check --directory="$staged_rel" "$patch_file" >/dev/null 2>&1 \
+      || { rm -rf "$tmp" "$staged"; fail "patch no longer applies: $patch_rel"; }
+    git -C "$DOTFILES_ROOT" apply --directory="$staged_rel" "$patch_file" >/dev/null 2>&1 \
+      || { rm -rf "$tmp" "$staged"; fail "could not apply patch: $patch_rel"; }
+  fi
+
+  # Some vendored skills need a local command name to avoid collisions.
+  local frontmatter_name
+  frontmatter_name="$(python3 - "$SOURCES" "$name" <<'PY'
+import json, sys
+data = json.load(open(sys.argv[1]))
+print(data["skills"][sys.argv[2]].get("frontmatterName", ""))
+PY
+)"
+  if [ -n "$frontmatter_name" ]; then
+    python3 - "$staged/SKILL.md" "$frontmatter_name" <<'PY'
+import re, sys
+path, name = sys.argv[1], sys.argv[2]
+text = open(path).read()
+updated, count = re.subn(
+    r"(?m)(\A---\n(?:.*\n)*?name:\s*)[^\n]+",
+    lambda match: match.group(1) + name,
+    text,
+    count=1,
+)
+if count != 1:
+    sys.exit(f"could not update frontmatter name in {path}")
+open(path, "w").write(updated)
+PY
+  fi
+
+  [ -f "$staged/SKILL.md" ] \
+    || { rm -rf "$tmp" "$staged"; fail "updated skill has no SKILL.md"; }
+
+  if [ -e "$SKILLS_DIR/$name" ] || [ -L "$SKILLS_DIR/$name" ]; then
+    mv "$SKILLS_DIR/$name" "$backup"
+  fi
+  if mv "$staged" "$SKILLS_DIR/$name"; then
+    rm -rf "$backup"
+  else
+    [ -e "$backup" ] && mv "$backup" "$SKILLS_DIR/$name"
+    rm -rf "$tmp" "$staged"
+    fail "could not install updated skill"
+  fi
+
+  # Record version, revision, and import date in sources.json.
+  python3 - "$SOURCES" "$name" "$version" "$revision" <<'PY'
 import json, sys, datetime
-sources, name, version = sys.argv[1], sys.argv[2], sys.argv[3]
+sources, name, version, revision = sys.argv[1:5]
 data = json.load(open(sources))
 entry = data["skills"][name]
 if version:
     entry["version"] = version
+entry["revision"] = revision
 entry["importedAt"] = datetime.date.today().isoformat()
 json.dump(data, open(sources, "w"), indent=2)
 open(sources, "a").write("\n")
@@ -112,7 +203,7 @@ main() {
 import json, sys
 data = json.load(open(sys.argv[1]))
 for n, e in data.get("skills", {}).items():
-    if e.get("status") == "copied" and "/tree/" in e.get("source", ""):
+    if e.get("status") in {"copied", "adapted"} and "/tree/" in e.get("source", ""):
         print(n)
 PY
 )"

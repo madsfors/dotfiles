@@ -1,0 +1,291 @@
+diff --git a/SKILL.md b/SKILL.md
+index 4f7ea14..90ff328 100644
+--- a/SKILL.md
++++ b/SKILL.md
+@@ -1,141 +1,138 @@
+ ---
+ name: better-interface
+ description: >-
+-  Cross-discipline interface review. Routes a screen, flow, or feature to every `better-*`
+-  domain skill and consolidates one ranked verdict. Use when asked for a holistic review
+-  rather than a single domain and when `interface-review` hands up a change to route.
+-  Triggers on better-interface, holistic interface review, review the whole screen.
++  User-invoked, cross-discipline interface review that coordinates accessibility, better-layout, better-writing, better-typography, better-colors, and make-interfaces-feel-better. Use when explicitly invoked for a holistic review of a screen, flow, feature, or product interface. Supports quick and full review modes. Triggers on better-interface, full interface review, holistic UI audit, cross-discipline design review, review the whole interface.
+ ---
+ 
+-# Interface review
++# Review the interface as one system
+ 
+-This skill runs a cross-discipline review. It routes the interface to each `better-*` skill, collects their evidence and consolidates one ranked verdict.
++A strong interface is not six independent audits stapled together. Review the whole experience, let each domain skill own its rules, then consolidate the evidence into one prioritized verdict.
+ 
+-Orchestration is all it owns. Accessibility rules belong to `better-accessibility`, structure to `better-layout`, copy to `better-writing`, type to `better-typography`, color to `better-colors`, visual polish and motion to `better-ui`. Never duplicate or override their rules here.
++This skill owns orchestration only. Accessibility rules belong to `accessibility`; structure to `better-layout`; copy to `better-writing`; type to `better-typography`; color to `better-colors`; visual polish to `make-interfaces-feel-better`. Never duplicate or override their rules here. For detailed motion work, that skill delegates to `apple-design`, `improve-animations`, and `review-animations`.
+ 
+-Change-scoped review of uncommitted work, branches and pull requests belongs to `interface-review`, which resolves the scope and classifies findings before handing the review back.
++## Core Principles
+ 
+-## Evidence, not taste
++### 1. Resolve Scope and Mode First
+ 
+-Press hard on the escalation triggers and leave deliberate project choices alone. Those pull the same way. A trigger is a failure whatever the style guide says; a density, radius, or voice you merely disagree with is not a finding.
++Infer the screen, flow, feature, or repository scope from the request and current workspace. State the resolved scope in the output. Use `full` when no mode is supplied.
+ 
+-So the bar for reporting is evidence, not taste. The bar for `Approve` is that you inspected what you claim to have inspected. A short report from a real inspection beats a long one padded to look thorough.
++| Mode | Coverage | Finding cap |
++| --- | --- | --- |
++| `quick` | Primary user path and highest-traffic states; report only `HIGH` and `MEDIUM` issues | 5 |
++| `full` | Entire requested scope across all six domain skills, including empty, loading, error, and narrow-width states when present | 15 |
+ 
+-## Core principles
++If the requested scope is too large to inspect credibly, narrow it to the highest-traffic complete flow and state the boundary. Never imply uninspected surfaces were reviewed.
+ 
+-### 1. Resolve the scope first
++### 2. Recon Before Judgment
+ 
+-Infer the screen, flow, feature, or repository scope from the request and current workspace. State the resolved scope in the output.
++Identify the framework, styling system, component library, design tokens, supported viewports, and documented preview or test commands. Follow the project's established Tailwind, plain CSS, CSS-in-JS, token, and component conventions. Reconnaissance is read-only: do not install dependencies, access secrets, make network requests, start persistent services, or run commands that mutate source, fixtures, snapshots, databases, or generated assets without explicit user authorization.
+ 
+-Cover all of it across every domain skill listed under **Use domain skills as the sources of truth**, including the empty, loading, error and narrow-width states where they exist. Report at most 15 findings.
++### 3. Use Domain Skills as the Sources of Truth
+ 
+-When the scope is too large to inspect credibly, narrow it to one complete flow: the one the request centers on, or failing that the entry path every user must pass through. State the boundary and what it excluded. Never imply uninspected surfaces were reviewed.
++Before reviewing, confirm that all six owning skills below are available. Load and apply every available owner. In `quick` mode, inspect all six domains but spend depth only where the primary flow has evidence. In `full` mode, complete each available domain review before consolidation.
+ 
+-### 2. Send a change to `interface-review`
++Review in this order so foundational failures are not hidden by polish:
+ 
+-A request naming a branch, pull request, commit range, or uncommitted changes is a change review, not a screen review. Say so and ask the user to run `interface-review`, which is user-invoked and cannot be started from here.
++1. `accessibility`
++2. `better-layout`
++3. `better-writing`
++4. `better-typography`
++5. `better-colors`
++6. `make-interfaces-feel-better`
+ 
+-Never resolve a change scope here. Reading a diff, classifying findings and expanding changed files to affected surfaces belong to `interface-review`. Guess at them and the report has a scope nobody can check.
++This skill owns the final response. When a domain skill is loaded through `better-interface`, apply its principles and references but ignore its standalone **Review Output Format**. Use the consolidated format, shared severity, and finding cap in this file instead.
+ 
+-When `interface-review` hands a review back, it supplies the change scope, a status per finding and the change-scoped report format. Severity, ranking, the cap and the verdict stay here, and all three cover `Introduced` and `Regression` only.
++If an owning skill is unavailable, mark that domain `Not reviewed`, name the missing skill, and continue with the remaining domains. Do not recreate its rules from memory, substitute a neighboring skill, or claim holistic coverage.
+ 
+-### 3. Recon before judgment
++When two skills appear to cover the same issue, assign it to the skill that owns the underlying rule and mention secondary effects in the **Why** cell. Report it once.
+ 
+-Identify the framework, styling system, component library, design tokens, supported viewports and any preview or test command. Write every fix in the project's own idiom, so no finding arrives as a request to adopt a different stack. That governs the form of the fix, not whether the code is good enough.
++### 4. Require Evidence
+ 
+-Then read what the project has written about its own interface: `CONTRIBUTING.md`, `CODING_STANDARDS.md`, `AGENTS.md`, `CLAUDE.md`, a design-system doc, Storybook docs, interface ADRs. Name which you found, or that there are none.
++Every finding cites `path/to/file:line` and shows the current implementation. If the review artifact has no source files, cite the exact screen and component. Do not report a code-level finding from visual appearance alone or a visual finding from source code alone when runtime behavior determines the result.
+ 
+-Read them to find where a finding belongs, not for permission to drop it. A documented convention is no evidence the convention is good, and "it's in the style guide" does not retire a finding. What they change is **where** you report. When a guideline or shared token is the cause, report it once against that source, with the components as its locations.
++### 5. Rank by User Impact
+ 
+-### 4. Use domain skills as the sources of truth
++Use one shared severity scale:
+ 
+-Before reviewing, confirm that every owning skill below is available. Load and apply every available owner, and complete each domain review before consolidation.
++- `HIGH`: blocks a task, misleads the user, hides content or controls, causes data-loss risk, or creates a repeated systemic failure.
++- `MEDIUM`: meaningfully harms comprehension, efficiency, adaptability, or consistency.
++- `LOW`: isolated polish with limited task impact. Include only in `full` mode.
+ 
+-Review in this order so foundational failures are not hidden by polish:
++Within a severity, rank by reach and leverage. A token or shared-component fix outranks the same symptom in one leaf component.
+ 
+-1. `better-accessibility`
+-2. `better-layout`
+-3. `better-writing`
+-4. `better-typography`
+-5. `better-colors`
+-6. `better-ui`
++### 6. Consolidate Systemic Findings
+ 
+-From a domain skill loaded here, take its principles, its references and its verification checks. Its severity ladder and its format are for standalone use; the consolidated format, shared severity and finding cap in this file replace them.
++One root cause is one finding. List every confirmed location in the same row rather than producing a row per occurrence. Do not pad the report to reach the finding cap; a short review or no findings is a valid result.
+ 
+-If an owning skill is unavailable, mark that domain `Not reviewed`, name it and continue with the rest. Do not recreate its rules from memory, substitute a neighbour, or claim holistic coverage.
++### 7. Make Restraint Visible
+ 
+-When two skills appear to cover one issue, assign it to the owner of the underlying rule and note secondary effects in the **Why** cell. Report it once.
++Record candidates considered but deliberately rejected. A candidate is rejected when the owning skill permits the current implementation, evidence is insufficient, the project convention is intentional, or the proposed change would add complexity without user benefit.
+ 
+-### 5. Require evidence
++### 8. Verify What Can Be Verified
+ 
+-Every finding cites `path/to/file:line` and shows the current implementation. Do not report a code-level finding from visual appearance alone or a visual finding from source code alone when runtime behavior determines the result.
++Run only local, read-only checks whose behavior is known from project documentation or scripts already inspected. Do not treat a command named `test`, `lint`, or `preview` as inherently safe. Inspect an already available rendered interface when runtime behavior or visual judgment matters. Report the exact command or interaction and observed result. If a check cannot be run safely, label it **Not verified** and state what remains; never convert a verification gap into a finding.
+ 
+-### 6. Rank by user impact
++### 9. Review Without Mutating by Default
+ 
+-Use one shared severity scale:
++Treat a review request as read-only. Do not edit source code unless the user also asks to implement the findings. When implementation is requested, preserve the consolidated report as the change scope and re-run the relevant verification afterward.
+ 
+-- `HIGH`: blocks a task, misleads the user, hides content or controls, causes data-loss risk, or creates a repeated systemic failure.
+-- `MEDIUM`: meaningfully harms comprehension, efficiency, adaptability, or consistency.
+-- `LOW`: isolated polish with limited task impact.
++## Common Mistakes
+ 
+-Within a severity, rank by how many places the finding reaches and how much one fix buys. A token or shared-component fix outranks the same symptom in one leaf.
++| Mistake | Fix |
++| --- | --- |
++| Six disconnected domain reports | Consolidate into one ranked findings table |
++| Same issue reported by multiple skills | Assign it to the skill that owns the underlying rule |
++| Finding with no exact location | Cite `path/to/file:line` and the current implementation |
++| Visual claim inferred only from source | Inspect the rendered state or mark it not verified |
++| Unlimited low-impact polish | Respect the mode cap; omit `LOW` findings in `quick` |
++| Silent gaps in coverage | Show which domains and states were actually inspected |
++| Missing owning skill silently treated as covered | Mark the domain `Not reviewed` and name the unavailable skill |
++| No rejected candidates | Include the required considered-but-rejected table |
++| Review silently edits code | Stay read-only unless implementation was requested |
++| “Approve” with pending actionable findings | Use `Needs changes` or `Block` |
+ 
+-**Escalation triggers.** Once the owning skill confirms one of these, it is `HIGH` on sight, never averaged down because the surface is minor:
++## Review Output Format
+ 
+-- An interactive control with no accessible name.
+-- A keyboard-reachable control with no visible focus indicator.
+-- A control or path reachable by pointer but not by keyboard.
+-- Motion or auto-playing content that ignores `prefers-reduced-motion`.
+-- Content or a control clipped, overlapped, or unreachable at 320px width or 200% zoom.
+-- Body or control text whose rendered contrast pair fails its required ratio.
+-- State or meaning carried by color alone.
+-- A destructive action with no confirmation, undo, or distinct treatment.
+-- Truncated content with no way to reach the full value.
+-- Content or a control reachable only past a scroll edge or behind a disclosure that has no visible cue.
+-- An error that names no way to recover from it.
+-- A semantic color used against its meaning, such as the danger hue on a non-destructive action.
+-- A state change carried by motion alone, with no color, icon, or label left behind when the animation does not run.
++Always use the following sections.
+ 
+-Triggers rank above every other finding. When more fire than the cap allows, list them first and say how many the cap excluded. A cap may shorten a report; it may never be why a blocker went unreported.
++### Scope and Coverage
+ 
+-These set severity, not new rules. The owning skill decides whether the symptom is present; this list decides what it costs. In a change review, a confirmed `Regression` against a trigger is `HIGH` even where the same symptom would be `MEDIUM` as pre-existing.
++State the mode, exact scope, stack and styling conventions, and any review boundary. Then show coverage:
+ 
+-### 7. Prefer the cheaper fix
++| Domain | Evidence inspected | Result |
++| --- | --- | --- |
++| Accessibility | Files, components, states, or checks | Findings count or `Clear` |
+ 
+-Severity says how bad a finding is; this says which fix to propose. When more than one would work, take the earliest that does:
++Include all six domains. `Clear` means inspected with no actionable finding; `Not reviewed` must explain why.
+ 
+-1. **Delete.** A separator that space would carry, an animation on a high-frequency interaction, an ARIA attribute a native element makes redundant, a ramp nothing imports.
+-2. **Use the platform.** The native element, the native control, the browser's own focus ring, in place of a custom rebuild.
+-3. **Reuse what the project has.** An existing token, spacing step, or motion curve, before any new value.
+-4. **Correct the value.** The wrong easing, radius, gap, or contrast pair, using the exact value the owning skill gives.
+-5. **Add.** A new token, a wrapper, a media query, an ARIA attribute the platform cannot supply.
++### Findings
+ 
+-A fix written at step 5 where step 1 was available is its own finding. Report the deletion instead.
++Use one table ordered by severity, then reach and leverage:
+ 
+-### 8. Consolidate systemic findings
++| # | Severity | Domain | Location | Before | After | Why |
++| --- | --- | --- | --- | --- | --- | --- |
++| 1 | HIGH | Accessibility | `src/Dialog.tsx:42` | `<button><XIcon /></button>` | Add `aria-label="Close"` and hide the icon from the accessibility tree | The icon-only control has no accessible name |
+ 
+-One root cause is one finding. List every confirmed location in the same row rather than one row per occurrence. Never pad to reach the cap; a short review or no findings is a valid result.
++Each row is one root cause. The **Domain** value is the owning skill without the `better-` prefix. Respect the mode's finding cap. If there are no findings, omit the table and state "No actionable interface findings."
+ 
+-### 9. Verify what can be verified
++### Considered but Rejected
+ 
+-Run the safe, relevant checks the project offers. Inspect the rendered interface when runtime behavior or visual judgment matters, and report the exact command or interaction and its result. A check you cannot run is **Not verified**, never a finding.
++Include 1–3 candidates in `quick` mode and 2–5 in `full` mode:
+ 
+-### 10. Review without mutating by default
++| Location | Candidate | Rejected because |
++| --- | --- | --- |
++| `src/Card.tsx:28` | Increase the shadow | Existing depth matches the shared surface token; changing one card would reduce consistency |
+ 
+-Treat a review request as read-only. Do not edit source unless the user also asks you to implement the findings. When they do, keep the consolidated report as the change scope and re-run the relevant verification afterward.
++These are real candidates inspected during the review, not invented filler. If the scope genuinely contains fewer borderline candidates, include the ones that exist and say so.
+ 
+-## Before you finish
++### Verification
+ 
+-| Mistake | Fix |
+-| --- | --- |
+-| Six disconnected domain reports | One ranked findings table |
+-| Visual claim inferred only from source | Inspect the rendered state, or mark it not verified |
+-| Silent gaps in coverage | Show which domains and states were actually inspected |
+-| Missing owning skill treated as covered | Mark the domain `Not reviewed` and name the skill |
+-| Every legacy issue in a touched file reported | Three pre-existing findings, in their own section |
+-| A pre-existing issue blocking a change review | Keep pre-existing findings out of the cap and out of the verdict |
+-| Domain marked `Clear` when the change never touched it | Mark it `Not reviewed: no evidence in the change scope` |
++List each check or interaction, the exact command or steps, and the observed result. Separate checks that passed from checks marked **Not verified**.
++
++### Verdict
+ 
+-## Review output format
++End with exactly one:
+ 
+-The format lives in [review-format.md](review-format.md): scope and coverage, the findings table, verification and the verdict. A review is not finished until its findings are reported there.
++- `Block` — one or more `HIGH` findings remain.
++- `Needs changes` — only `MEDIUM` or `LOW` findings remain.
++- `Approve` — no actionable findings remain, every requested domain was reviewed, and the claimed coverage was verified.
+diff --git a/agents/openai.yaml b/agents/openai.yaml
+index 0dcd698..b42658a 100644
+--- a/agents/openai.yaml
++++ b/agents/openai.yaml
+@@ -1,3 +1,5 @@
+ interface:
+   display_name: "Better Interface"
+   short_description: "Cross-discipline interface review"
++policy:
++  allow_implicit_invocation: false
+diff --git a/review-format.md b/review-format.md
+deleted file mode 100644
+index 0776183..0000000
+--- a/review-format.md
++++ /dev/null
+@@ -1,46 +0,0 @@
+-# Review output format
+-
+-This is the format for a review `better-interface` orchestrates. A domain skill reporting on its own carries its own smaller format, in its `## Reporting` section.
+-
+-## Scope and coverage
+-
+-State the exact scope, stack and styling conventions, the project convention documents found in recon and any review boundary. Then show coverage:
+-
+-| Domain | Evidence inspected | Result |
+-| --- | --- | --- |
+-| Accessibility | Files, components, states, or checks | Findings count or `Clear` |
+-
+-Include every domain listed under `better-interface`'s **Use domain skills as the sources of truth**. `Clear` means inspected with no actionable finding; `Not reviewed` must explain why.
+-
+-## Findings
+-
+-One table, ordered by severity, then by reach:
+-
+-| Severity | Domain | Location | Before | After | Why |
+-| --- | --- | --- | --- | --- | --- |
+-| HIGH | Accessibility | `src/Dialog.tsx:42` | `<button><XIcon /></button>` | Add `aria-label="Close"` and hide the icon from the accessibility tree | The icon-only control has no accessible name |
+-
+-- **Severity** comes from `better-interface`'s **Rank by user impact**.
+-- **Location** cites `path/to/file:line`. Cite the exact screen and component when the artifact has no source files.
+-- **Before / After** show the current implementation and an actionable replacement. Never split them into separate "Before:" and "After:" lines.
+-- **Why** names the violated principle and its user impact.
+-- **Domain** is the owning skill without the `better-` prefix.
+-
+-Each row is one root cause. Consolidate a repeated systemic issue into one row and list every affected location. Respect the finding cap. With no findings, omit the table and state "No actionable interface findings."
+-
+-## Verification
+-
+-List each check or interaction, the exact command or steps and the observed result. Separate checks that passed from checks marked **Not verified**.
+-
+-## Verdict
+-
+-End with one of two:
+-
+-- `Block`: one or more `HIGH` findings remain. Do not ship until they are fixed.
+-- `Approve`: no `HIGH` findings remain. Any `MEDIUM` and `LOW` findings stay in the table as work to do.
+-
+-`Approve` claims the coverage you reported, so never issue it for a domain you did not inspect.
+-
+-## Change-scoped reviews
+-
+-When `interface-review` resolved the scope from version control, it supplies the scope block, a status on every finding and the change-scoped format, which its `## Review output format` holds. Severity, ranking, the cap and the verdict are the ones above, and all four cover `Introduced` and `Regression` only.

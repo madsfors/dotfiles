@@ -1,0 +1,724 @@
+diff --git a/SKILL.md b/SKILL.md
+index 11a35de..89adeb7 100644
+--- a/SKILL.md
++++ b/SKILL.md
+@@ -1,111 +1,148 @@
+ ---
+ name: better-accessibility
+-description: Accessibility engineering for product interfaces. Use when building or reviewing UI components and custom widgets, or when the user reports a keyboard or screen-reader problem. Triggers on accessibility, a11y, WCAG, aria, focus ring, focus trap, keyboard navigation, tabindex, screen reader, sr-only, alt text, hit area, hover on touch, prefers-reduced-motion, autoplay, skip link, semantic HTML, form errors, disabled buttons, "not keyboard accessible".
++description: Accessibility engineering for product interfaces, from focus states and keyboard support to ARIA, forms, and screen readers. Use when building or reviewing UI components, modals, menus, forms, custom widgets, or when the user says "make this accessible" or reports keyboard or screen-reader issues. Triggers on accessibility, a11y, WCAG, aria, focus ring, focus-visible, focus trap, keyboard navigation, tab order, tabindex, screen reader, sr-only, aria-live, alt text, hit area, touch target, prefers-reduced-motion, autoplay, toast duration, skip link, semantic HTML, aria-label, form errors, disabled buttons, "not keyboard accessible".
+ ---
+ 
+-# Accessibility
++# Accessibility that comes with the craft
+ 
+-Most accessibility is free if you use the platform. Native elements ship with keyboard support, real labels announce themselves and a visible focus ring is one CSS rule.
++Accessibility is not a compliance checkbox bolted on at the end; it is the floor for interface craft. Most of it is free if you use the platform: native elements ship with keyboard support, real labels announce themselves, and a visible focus ring is one CSS rule. Apply these principles when building or reviewing UI code, and match the project's existing styling system (Tailwind vs. plain CSS vs. CSS-in-JS) when applying fixes.
+ 
+-Write every fix in the project's styling system, and use the exact values below rather than familiar-looking substitutes.
++When reviewing, walk the interface as a keyboard-only user first (every flow must complete without a mouse), then as a screen-reader user: does each control announce a name, a role, and its state? When unsure, prefer the platform default over a custom rebuild, and remove ARIA rather than add it.
+ 
+-Reviewing means two walks. Keyboard-only, where every flow completes without a mouse. Then screen-reader, where every control announces a name, a role and its state. When unsure, take the platform default over a custom rebuild, and remove ARIA rather than add it.
++Rendered-pair contrast measurement and color remediation are covered by the `better-colors` skill; visual text sizing and iOS input zoom by `better-typography`; spatial RTL layout by `better-layout`.
+ 
+-Contrast measurement and color fixes belong to `better-colors`. Text sizing and iOS input zoom belong to `better-typography`. Spatial RTL layout belongs to `better-layout`.
++## Quick Reference
+ 
+-## Native elements first
+-
+-The first rule of ARIA: don't use ARIA when a native element exists. `<button>` for actions, `<a href>` for navigation, never `<div onClick>`. A real link must support Cmd/Ctrl/middle-click. No ARIA is better than bad ARIA. See [semantics-and-aria.md](semantics-and-aria.md) for landmarks, button-vs-link and disabled states.
+-
+-## Visible focus rings
+-
+-Style `:focus-visible`, not bare `:focus`. Keyboard users get a ring and mouse users usually don't. Prefer the browser's unmodified indicator.
++| Category | When to Use |
++| --- | --- |
++| [Focus & Keyboard](focus-and-keyboard.md) | Focus rings, skip links, tabindex, focus trapping, APG keyboard patterns |
++| [Semantics & ARIA](semantics-and-aria.md) | Native elements first, button vs link, landmarks, accessible names, disabled states |
++| [Forms](forms.md) | Labels, autocomplete, error messaging, input types |
++| [Screen Readers](screen-readers.md) | Visually hidden content, live regions, toasts, alt text, SVG |
++| [Hit Areas](hit-areas.md) | Target sizes, expanding hit areas, collision rules |
++| [Motion & Zoom](motion-and-zoom.md) | `prefers-reduced-motion`, autoplay and timed UI, 200% zoom, reflow, rem vs px |
+ 
+-A custom ring needs a project focus token or another explicit color. Verify the whole indicator against every adjacent color it crosses, `currentColor` included. Use at least a `2px` solid perimeter or an equivalent visible area. Never use `outline: none` without a verified replacement, and preserve system colors in forced-colors mode. Recipes are in [focus-and-keyboard.md](focus-and-keyboard.md).
++## Core Principles
+ 
+-## Full keyboard support
++### 1. Native Elements First
+ 
+-Every pointer interaction needs a keyboard path. Follow the ARIA APG patterns: Escape closes overlays, arrow keys move within composite widgets, Tab moves between widgets, Enter and Space activate.
++The first rule of ARIA: don't use ARIA when a native element exists. `<button>` for actions, `<a href>` for navigation (it must support Cmd/Ctrl/middle-click), never `<div onClick>`. No ARIA is better than bad ARIA.
+ 
+-Use only `tabindex="0"` to join the natural tab order and `tabindex="-1"` for programmatic focus. Positive values break that order. Composite widgets use roving tabindex, where the active item is `0` and every other is `-1`.
++### 2. Visible Focus Rings
+ 
+-## Trap and restore focus
++Style `:focus-visible`, not bare `:focus`, so keyboard users get a ring and mouse users usually don't. Prefer the browser's unmodified focus indicator. If the design needs a custom ring, use a project focus token or another explicit color and verify the complete indicator against every adjacent color it crosses; `currentColor` is acceptable only after the same check. A `2px` solid perimeter is a useful design default, not a universal Level AA requirement: WCAG 2.4.13's focus-area and contrast thresholds are Level AAA. Test against the project's actual conformance target. Never use `outline: none` without a verified replacement, and preserve system colors in forced-colors mode.
+ 
+-Modals set `inert` on the background content, move focus inside on open and return focus to the trigger on close. Add `overscroll-behavior: contain` so background content doesn't scroll.
++### 3. Full Keyboard Support
+ 
+-## Minimum hit area
++Every pointer interaction needs a keyboard path, following the ARIA APG patterns: Escape closes overlays, arrow keys move within composite widgets (tabs, menus, listboxes), Tab moves between widgets, Enter and Space activate. Only `tabindex="0"` (join the natural tab order) and `tabindex="-1"` (programmatic focus), never positive values, which break the natural order. Composite widgets use roving tabindex: the active item is `0`, all others `-1`.
+ 
+-WCAG 2.5.8's Level AA baseline is a 24×24 CSS-pixel target, or one of its spacing, equivalent-control, inline, user-agent and essential exceptions. Aim for 44×44px on touch and 40×40px on desktop where density permits. Extend with a pseudo-element when the visible element should stay smaller.
++### 4. Trap and Restore Focus
+ 
+-Never let extended hit areas overlap. Give decorative layers `pointer-events: none`, so a glow never swallows the clicks meant for the control beneath it. Sizes and collision rules are in [hit-areas.md](hit-areas.md).
++Modals set `inert` on the background content, move focus inside on open, and return focus to the trigger on close. Add `overscroll-behavior: contain` so background content doesn't scroll.
+ 
+-## Label and type every control
++### 5. Minimum Hit Area
+ 
+-Every input gets a `<label for>` or a wrapping `<label>`. A placeholder is never a label. Label and control share one hit target, with no dead zone between a checkbox and its text.
++WCAG 2.5.8's Level AA baseline is a 24×24 CSS-pixel target or one of its defined spacing, equivalent-control, inline, user-agent, or essential exceptions. For easier activation, aim for 44×44px in touch contexts and 40×40px in desktop interfaces when density permits. Extend with a pseudo-element if the visible element should stay smaller. Never let extended hit areas overlap.
+ 
+-Add `autocomplete` with a meaningful `name`, plus the `type` and `inputmode` that summon the right keyboard. Never block paste; users paste passwords and one-time codes. See [forms.md](forms.md).
++### 6. Label and Type Every Control
+ 
+-## Errors that announce
++Every input gets a `<label for>` or wrapping `<label>`; a placeholder is never a label, and label and control share one hit target: no dead zones between a checkbox and its text. Add `autocomplete` with a meaningful `name`, and the correct `type` and `inputmode` for the keyboard. Never block paste; users paste passwords and one-time codes.
+ 
+-Keep submit enabled until the request starts, then disable with a spinner and the original label. Validate on submit. Mark failing fields `aria-invalid="true"`, point `aria-describedby` at the inline error text and focus the first invalid field.
++### 7. Errors That Announce
+ 
+-Use native `disabled` when a control is genuinely unavailable. Reach for `aria-disabled="true"` only when it should stay focusable, then block pointer, keyboard and form behavior in code and style the state explicitly.
++Keep submit enabled until the request starts, then disable with a spinner while keeping the original label. Validate on submit: mark failing fields with `aria-invalid="true"`, point `aria-describedby` at the inline error text, and focus the first invalid field. Use native `disabled` when a native control is genuinely unavailable. Use `aria-disabled="true"` only when retaining focusability or discoverability is intentional; then block pointer, keyboard, and form behavior in code and style the state explicitly.
+ 
+-## Accessible names everywhere
++### 8. Accessible Names Everywhere
+ 
+ Icon-only buttons need a descriptive `aria-label`. Visible label text must appear in the accessible name. Decorative elements get `aria-hidden="true"`, never on a focusable element.
+ 
+-## Don't rely on color alone
+-
+-Status needs a redundant cue: an icon, text, or an underline alongside the color. Work out which WCAG contrast requirement applies, then use `better-colors` to measure the rendered pair. When it fails, report the pair and the requirement it misses, and leave the colors alone unless asked.
+-
+-## Honor prefers-reduced-motion
++### 9. Don't Rely on Color Alone
+ 
+-Wrap motion in `@media (prefers-reduced-motion: no-preference)` so it is opt-in. Under reduced motion, replace slides and scales with opacity crossfades, and kill parallax and autoplay entirely.
++Status needs a redundant cue: icon, text, or underline alongside the color. Determine which WCAG contrast requirement applies from the content and state, then use `better-colors` to measure the rendered foreground/background pair. When contrast fails, report the pair and requirement it misses; do not change the project's colors unless asked.
+ 
+-Two rules hold regardless of the preference. Autoplaying media needs a visible pause control, and toasts carrying an action or an error stay until dismissed. See [motion-and-zoom.md](motion-and-zoom.md).
++### 10. Honor prefers-reduced-motion
+ 
+-## Announce dynamic content
++Wrap motion in `@media (prefers-reduced-motion: no-preference)` so it is opt-in. Under reduced motion, replace slides and scales with opacity crossfades; kill parallax and autoplay entirely. Independent of the preference: autoplaying media needs a visible pause control, and toasts carrying actions or errors stay until dismissed.
+ 
+-Three mechanisms, three jobs. `aria-describedby` carries field-specific validation. A polite live region (`role="status"`) carries non-urgent updates not tied to a control, such as toasts and result counts. `role="alert"` carries urgent untied errors and nothing else.
++### 11. Announce Dynamic Content
+ 
+-Repeated polite announcements need a stable empty region rendered before its text updates. Dynamically inserted alerts vary in support, so test them on the screen readers you target. See [screen-readers.md](screen-readers.md).
++Use `aria-describedby` for field-specific validation, a polite live region (`role="status"`) for non-urgent updates not tied to a control such as toasts or result counts, and `role="alert"` only for urgent errors not tied to a control. For reliable repeated polite announcements, render a stable empty region before updating its text; dynamically inserted alerts have different support and must be tested with the target screen readers.
+ 
+-## Alt text by purpose
++### 12. Alt Text by Purpose
+ 
+-Decorative images get `alt=""`. Informative images describe the meaning. Functional images describe the action: a search icon button is `alt="Search"`, not `alt="magnifying glass"`.
++Decorative images get `alt=""`, informative images describe the meaning, functional images describe the action: a search icon button is `alt="Search"`, not `alt="magnifying glass"`.
+ 
+-## Structure is navigation
++### 13. Structure Is Navigation
+ 
+-Use headings that describe their sections and form a coherent outline. Give the page one `<h1>` and nest the levels below it without skipping. Expose one visible primary `<main>` landmark. When repeated navigation or chrome precedes it, make a "Skip to content" link the first focusable element. Anchored headings get `scroll-margin-top`.
++Use headings that describe their sections and form a coherent outline; one page-level `<h1>` and properly nested levels are the recommended default, not standalone WCAG pass/fail rules. Expose one visible primary `<main>` landmark. When repeated navigation or chrome precedes it, make a "Skip to content" link the first focusable element. Anchored headings get `scroll-margin-top`.
+ 
+-## Survive zoom and text resize
++### 14. Survive Zoom and Text Resize
+ 
+-The page must work at 200% zoom and reflow at 320px width without horizontal scrolling. Use `min-height` rather than fixed `height` on text containers. Prefer `rem` breakpoints where they fit the codebase, and never let the viewport meta cap how far the reader can zoom.
++The page must work at 200% zoom and reflow at 320px width without horizontal scrolling. Use `min-height` instead of fixed `height` on text containers, prefer `rem` breakpoints where they fit the codebase's conventions, and never use `user-scalable=no` or `maximum-scale=1`.
+ 
+-## Before you finish
++## Common Mistakes
+ 
+ | Mistake | Fix |
+ | --- | --- |
+-| Custom focus color assumed to work everywhere | Verify it against every adjacent color and in forced-colors mode |
+-| Repeated polite update inconsistently announced | Keep a stable empty status region and update its text |
++| `outline: none` to remove the focus ring | Style `:focus-visible` instead; mouse clicks won't show it |
++| Custom focus color assumed to work everywhere | Verify the full indicator against every adjacent color and in forced-colors mode |
++| `<div onClick>` for a button or link | `<button>` for actions, `<a href>` for navigation |
++| Placeholder used as the only label | Add a visible `<label for>`; placeholders disappear on input |
++| Positive `tabindex` to fix focus order | Fix the DOM order; only use `0` and `-1` |
++| Repeated polite update inconsistently announced | Keep a stable empty status region and update its text; test the target screen readers |
+ | `assertive` live region for a routine toast | Use `polite`; reserve `assertive` for errors |
+ | `aria-hidden="true"` on a focusable element | Remove it or make the element non-focusable |
++| Functional icon alt describes the picture | Describe the action: `alt="Search"`, not `alt="magnifying glass"` |
++| `maximum-scale=1` to stop iOS input zoom | 16px input font on mobile (see `better-typography`); never block zoom |
+ | Submit disabled until the form is valid | Keep it enabled; validate on submit and focus the first error |
+-| Hover treatment stuck after a tap on touch | Gate hover styling with `@media (hover: hover)` |
+-| Tooltip on a natively `disabled` control | Text beside it, or `aria-disabled` so it stays focusable |
+ 
+-## Reporting
++## Review Output Format
+ 
+-**Severity.** `HIGH` prevents a task, hides content from assistive technology, or creates a systemic failure. `MEDIUM` makes an interaction meaningfully harder. `LOW` is isolated polish.
++Use this format only when the user asks for a standalone accessibility review. When `better-interface` orchestrates the review, provide domain evidence and findings to that skill and let its output format, severity scale, consolidation rules, cap, and verdict take precedence.
+ 
+-**Verification.** Without a browser: accessible names on every interactive element, keyboard handlers on non-native controls, focus styles, `prefers-reduced-motion` guards and form labels bound to their inputs. With one: tab the flow in order, read computed names and roles from the accessibility tree, confirm a visible focus indicator at every stop and run an automated audit. Report every check you could not run as `Not verified`.
++Present the standalone review in two parts.
+ 
+-**Format.** Group findings under the principle each violates, ordered by severity, one row per root cause listing every location it appears in:
++### Findings
+ 
++Group all confirmed findings by principle. Use a markdown table with **Severity**, **Location**, **Before**, **After**, and **Why** columns. Never use separate "Before:" / "After:" lines.
++
++- **Severity**: `HIGH` prevents a task, hides content from assistive technology, or creates a systemic accessibility failure; `MEDIUM` makes an interaction meaningfully harder; `LOW` is isolated polish.
++- **Location**: cite `path/to/file:line`. If the artifact has no source files, cite the exact screen and component instead.
++- **Before / After**: show the current implementation and an actionable replacement.
++- **Why**: name the violated principle and its user impact.
++
++Consolidate a repeated systemic issue into one row and list every affected location. Omit principles with no findings.
++
++### Example
++
++#### Accessible names everywhere
+ | Severity | Location | Before | After | Why |
+ | --- | --- | --- | --- | --- |
++| HIGH | `src/Dialog.tsx:42` | `<button><XIcon /></button>` | Add `aria-label="Close"`; mark the icon `aria-hidden="true"` | The icon-only control has no accessible name |
++| HIGH | `src/Nav.tsx:18` | `<a href="/settings"><GearIcon /></a>` | Add `aria-label="Settings"` | The link destination is unavailable to screen readers |
++
++#### Visible focus rings
++| Severity | Location | Before | After | Why |
++| --- | --- | --- | --- | --- |
++| HIGH | `src/button.css:12` | `button:focus { outline: none; }` | `button:focus-visible { outline: 2px solid; outline-offset: 2px; }` | Keyboard users cannot see focus |
++| HIGH | `src/Menu.tsx:31` | `focus:outline-none` | `focus-visible:outline-2 focus-visible:outline-offset-2` | Menu navigation has no visible focus indicator |
++
++#### Errors that announce
++| Severity | Location | Before | After | Why |
++| --- | --- | --- | --- | --- |
++| HIGH | `src/EmailField.tsx:27` | Error shown only as `border-red-500` | Add `aria-invalid="true"` + `aria-describedby="email-error"` with inline error text | Color alone neither explains nor announces the error |
++| MEDIUM | `src/SignupForm.tsx:64` | Submit disabled until the form is valid | Keep submit enabled; on failure, focus the first invalid field | A disabled action hides what must be fixed |
++
++#### Minimum hit area
++| Severity | Location | Before | After | Why |
++| --- | --- | --- | --- | --- |
++| MEDIUM | `src/Toolbar.tsx:22` | `size-4` icon-only button | Extend the hit area to 44×44px with `after:absolute after:size-11` | The target is too small for reliable touch input |
++
++### Verification and Verdict
++
++After the findings:
+ 
+-`Location` is `path/to/file:line`. `Why` names the principle and the user impact.
++1. **Verification**: list the exact checks run and their observed results, including keyboard traversal, accessible-name inspection, and screen-reader or automated checks when applicable. If a check was not run, state what still needs verification.
++2. **Verdict**: `Block` if any `HIGH` finding remains, `Needs changes` if only `MEDIUM` or `LOW` findings remain, and `Approve` only when no actionable findings remain.
+ 
+-End with `Block` when any `HIGH` remains, `Approve` otherwise, leaving the rest in the table as work to do. Never `Approve` coverage you did not inspect. With nothing to report, state "No actionable accessibility findings" and report verification.
++When there are no findings, omit the tables, state "No actionable accessibility findings", report verification, and end with `Approve`.
+diff --git a/agents/openai.yaml b/agents/openai.yaml
+index 36b942f..610c7c1 100644
+--- a/agents/openai.yaml
++++ b/agents/openai.yaml
+@@ -1,3 +1,3 @@
+ interface:
+-  display_name: "Better Accessibility"
++  display_name: "Accessibility"
+   short_description: "Focus, keyboard, ARIA, forms and screen readers"
+diff --git a/focus-and-keyboard.md b/focus-and-keyboard.md
+index 6e5c290..82ec443 100644
+--- a/focus-and-keyboard.md
++++ b/focus-and-keyboard.md
+@@ -1,12 +1,12 @@
+-# Focus and keyboard
++# Focus and Keyboard
+ 
+-Focus rings, skip links, tabindex, focus trapping and the APG keyboard patterns.
++Focus rings, skip links, tabindex, focus trapping, and the APG keyboard patterns.
+ 
+ ## Focus rings
+ 
+-Style `:focus-visible`, not bare `:focus`. The browser shows it for keyboard and assistive-tech focus and suppresses it for mouse clicks, where focus is already obvious. Never write `outline: none` or `focus:outline-none` without a visible replacement, which removes keyboard navigation for sighted keyboard users.
++Style `:focus-visible`, not bare `:focus`. The browser shows `:focus-visible` for keyboard and assistive-tech focus but suppresses it for mouse clicks, where focus is already obvious. Never write `outline: none` or `focus:outline-none` without a visible replacement; that removes keyboard navigation for sighted keyboard users.
+ 
+-Prefer the browser's unmodified focus indicator, which adapts to platform and forced-color settings without the author predicting every background. Adding only `outline-offset` preserves it. A custom `outline: 2px solid` with no color renders `currentColor`, which is not automatically accessible, because the outline may cross colors unlike the text's own background. The preference order:
++Prefer the browser's unmodified focus indicator: it adapts to platform and forced-color settings without the author predicting every background. Adding only `outline-offset` generally preserves that indicator. A custom `outline: 2px solid` with no color renders `currentColor`; that is not automatically accessible because the outline may cross colors different from the text's own background. So the preference order is:
+ 
+ ```css
+ /* Best: keep the browser ring, just give it breathing room */
+@@ -28,15 +28,15 @@ Prefer the browser's unmodified focus indicator, which adapts to platform and fo
+ </button>
+ ```
+ 
+-A custom focus indicator must meet the applicable project or WCAG target for visible area and change of contrast. Inspect the whole perimeter against every adjacent color it crosses: component fills, page surfaces, images, gradients, hover and selected states. A token, brand color, or `currentColor` passes only when that rendered check does.
++A custom focus indicator must meet the applicable project/WCAG target for visible area and change of contrast. Inspect the whole perimeter against every adjacent color it crosses, including component fills, page surfaces, images, gradients, and hover/selected states. A token, brand color, or `currentColor` is acceptable only when that rendered check passes.
+ 
+-In `forced-colors: active` (Windows High Contrast), keep the default color adjustment or name a system color such as `Highlight`. `forced-color-adjust: none` freezes the authored color, so use it only where you have checked the control stays perceivable.
++In `forced-colors: active` (Windows High Contrast), keep the default color adjustment or explicitly use a system color such as `Highlight`; never freeze the authored color with `forced-color-adjust: none` unless the control remains perceivable.
+ 
+ Group focus styles with `:focus-within` when a wrapper should light up while an inner input has focus (e.g. a search box with an icon inside the border).
+ 
+ ## Skip link
+ 
+-Target `<main id="main">` and visually hide the link until focused:
++When repeated navigation or other repeated chrome precedes the primary content, the first focusable element is a "Skip to content" link targeting `<main id="main">`. Visually hide it until focused:
+ 
+ ```css
+ .skip-link {
+@@ -57,17 +57,17 @@ Target `<main id="main">` and visually hide the link until focused:
+ </body>
+ ```
+ 
+-Give in-page anchor targets `scroll-margin-top`, such as `80px` under a sticky header, so the target isn't hidden when jumped to.
++Give in-page anchor targets `scroll-margin-top` (e.g. `scroll-margin-top: 80px` under a sticky header) so the target isn't hidden when jumped to.
+ 
+ ## tabindex rules
+ 
+ - `tabindex="0"`: adds an element to the natural tab order. Only for custom interactive elements that aren't natively focusable.
+-- `tabindex="-1"`: focusable via JavaScript only (`el.focus()`). Use for headings you move focus to, modal containers and roving-tabindex members.
+-- Positive `tabindex`: never. It hijacks the tab order for the whole page. Fix the DOM order instead.
++- `tabindex="-1"`: focusable via JavaScript only (`el.focus()`). Use for headings you move focus to, modal containers, and roving-tabindex members.
++- Positive `tabindex`: never. It hijacks the tab order for the whole page; fix the DOM order instead.
+ 
+ ### Roving tabindex
+ 
+-Composite widgets, meaning tabs, menus, toolbars and radio groups, occupy one Tab stop. The active item has `tabindex="0"`, all others `tabindex="-1"`, and arrow keys move both focus and the `0`:
++Composite widgets (tabs, menus, toolbars, radio groups) occupy a single Tab stop. The active item has `tabindex="0"`, all others `tabindex="-1"`, and arrow keys move both focus and the `0`:
+ 
+ ```tsx
+ <div role="tablist">
+@@ -86,7 +86,7 @@ Composite widgets, meaning tabs, menus, toolbars and radio groups, occupy one Ta
+ 
+ ## Focus trapping and restoration
+ 
+-Modals must trap focus. Put `inert` on everything behind the dialog, which removes background content from the tab order and from assistive tech in one move:
++Modals must trap focus. The modern technique is the `inert` attribute on everything behind the dialog; it removes background content from the tab order and from assistive tech in one move:
+ 
+ ```tsx
+ // On open
+@@ -100,15 +100,15 @@ document.getElementById("app-content").inert = false;
+ triggerRef.current?.focus(); // always return focus to the element that opened it
+ ```
+ 
+-Prefer native `<dialog>` with `showModal()`, which gives you the trap, the `inert` background and Escape handling for free. A custom overlay that can't use it needs `role="dialog"`, `aria-modal="true"` and an accessible name via `aria-labelledby`. Either way:
++Native `<dialog>` with `showModal()` gives you the trap, `inert` background, and Escape handling for free; prefer it. A custom overlay that can't use `<dialog>` needs `role="dialog"`, `aria-modal="true"`, and an accessible name (`aria-labelledby` pointing at its heading). Either way:
+ 
+-- On open, focus the first focusable element. For destructive confirmations, focus the least destructive action instead.
+-- On close, return focus to the trigger, or to the nearest logical container if the trigger is gone.
++- On open, focus the first focusable element; for destructive confirmations, focus the least destructive action instead.
++- On close, return focus to the trigger. If the trigger no longer exists, move focus to the nearest logical container.
+ - Add `overscroll-behavior: contain` on the dialog so scrolling inside never scrolls the page behind it.
+ 
+ ## Keyboard patterns (ARIA APG)
+ 
+-Native elements come with these behaviors; custom widgets must implement them. A role is a promise. Give something `role="tab"` and users expect the full tab keyboard model.
++Native elements come with these behaviors; custom widgets must implement them. A role is a promise: if you give something `role="tab"`, users expect the full tab keyboard model.
+ 
+ | Widget | Keys |
+ | --- | --- |
+@@ -128,4 +128,4 @@ Universal rules:
+ 
+ ## SPA route changes
+ 
+-Client-side navigation doesn't reset focus or announce anything. On route change, update `document.title` to match the new context, then move focus to the new view's `<h1>` (given `tabindex="-1"`) or to `<main>`. Restore scroll position on back and forward navigation, and scroll to top on forward navigation.
++Client-side navigation doesn't reset focus or announce anything. On route change: update `document.title` to match the new context, then move focus to the new view's `<h1>` (given `tabindex="-1"`) or to `<main>`. Restore scroll position on back/forward navigation; scroll to top on forward navigation.
+diff --git a/forms.md b/forms.md
+index c0f0dba..b57d7e9 100644
+--- a/forms.md
++++ b/forms.md
+@@ -1,10 +1,10 @@
+ # Forms
+ 
+-Labels, autocomplete, error messaging, input types and submit behavior.
++Labels, autocomplete, error messaging, input types, and submit behavior.
+ 
+ ## Labels
+ 
+-Every control needs a programmatic label: `<label for>` pointing at the input's `id`, or a wrapping `<label>`. A placeholder is never a label. It disappears the moment the user types and usually fails contrast.
++Every control needs a programmatic label: `<label for>` pointing at the input's `id`, or a wrapping `<label>`. A placeholder is never a label: it disappears the moment the user types and usually fails contrast.
+ 
+ ```html
+ <!-- Good: explicit association -->
+@@ -17,9 +17,9 @@ Every control needs a programmatic label: `<label for>` pointing at the input's
+ </label>
+ ```
+ 
+-Label and control share one hit target, so clicking "Send me updates" toggles the checkbox with no dead zone between them. Mark required fields with native `required` plus a visible indicator explained once per form ("* required").
++Label and control must share one hit target: clicking the text "Send me updates" toggles the checkbox, with no dead zone between them. Mark required fields with native `required` plus a visible indicator explained once per form ("* required").
+ 
+-A placeholder used *in addition to* a label shows an example of the expected format: `placeholder="name@company.com"`.
++Placeholders, when used *in addition to* a label, show an example of the expected format: `placeholder="name@company.com"`.
+ 
+ ## Error messaging
+ 
+@@ -39,10 +39,10 @@ The complete pattern:
+ 
+ - `aria-invalid="true"` on the failing field, removed once fixed.
+ - `aria-describedby` links the field to its inline error so screen readers announce it with the field.
+-- Errors render inline beside their fields, with an icon or text. Never a red border alone, which is a color-only cue.
++- Errors render inline next to their fields, with an icon or text, never a red border alone (color-only cues fail).
+ - On submit, focus the first invalid field.
+-- Allow incomplete submission so validation can surface. Never disable submit until valid (see below).
+-- Accept free text and validate after. Never block typing or filter characters as the user types. Trim values before validating, because autocomplete and text expansion add trailing spaces.
++- Allow incomplete submission so validation can surface; don't disable submit until valid (see below).
++- Accept free text and validate after; don't block typing or filter characters as the user types. Trim values before validating; autocomplete and text expansion add trailing spaces.
+ 
+ ## Autocomplete and input types
+ 
+@@ -70,15 +70,17 @@ Correct `type` and `inputmode` pick the right mobile keyboard:
+ | Money, decimals | `type="text" inputmode="decimal"` |
+ | True numeric quantity | `type="number"` |
+ 
+-Disable spellcheck on emails, codes and usernames: `spellcheck="false"`.
++Disable spellcheck on emails, codes, and usernames: `spellcheck="false"`.
+ 
+ ## Never fight the user's tools
+ 
++- Never block paste in `<input>` or `<textarea>`; users paste passwords and one-time codes.
+ - Stay compatible with password managers and 2FA autofill: real `<form>`, correct `autocomplete`, no fake inputs.
++- Never use `user-scalable=no` or `maximum-scale=1` to stop iOS input zoom; keep mobile input text at `16px` instead (covered in `better-typography`).
+ 
+ ## Submit behavior
+ 
+-- Keep submit enabled until the request starts, then disable it and show a spinner *beside the original label*. "Save" with a spinner, not a bare spinner. The label is what tells assistive tech which button is busy.
+-- Announce results. Success goes through a polite live region. On failure, focus the first invalid field, which is itself the announcement. Reserve `role="alert"` for form-level errors not tied to a field ([screen-readers.md](screen-readers.md)).
+-- Warn on unsaved changes before navigation, and never lose typed input to a re-render. Hydration must preserve focus and value.
++- Keep submit enabled until the request starts, then disable it and show a spinner *while keeping the original label*: "Save" with a spinner, not a bare spinner. The label is what tells assistive tech which button is busy.
++- Announce results: success goes through a polite live region. For submit failures, focus the first invalid field; the focus move is the announcement, and reserve `role="alert"` for form-level errors not tied to a field (see [screen-readers.md](screen-readers.md)).
++- Warn on unsaved changes before navigation, and never lose typed input to a re-render; hydration must preserve focus and value.
+ - Enter submits from any focused input; in `<textarea>`, ⌘/Ctrl+Enter submits.
+diff --git a/hit-areas.md b/hit-areas.md
+index ab0e061..e6aeda0 100644
+--- a/hit-areas.md
++++ b/hit-areas.md
+@@ -1,6 +1,6 @@
+-# Hit areas
++# Hit Areas
+ 
+-Target sizes, expanding hit areas without changing visual size and collision rules.
++Target sizes, expanding hit areas without changing visual size, and collision rules.
+ 
+ ## Target sizes
+ 
+@@ -13,17 +13,17 @@ Separate the conformance baseline from larger usability targets:
+ | Apple HIG | 44×44pt |
+ | Material Design | 48×48dp |
+ 
+-WCAG 2.5.8 Level AA requires a 24×24 CSS-pixel target or one of its exceptions. Treat 44px as the recommended touch target for primary controls and 40px as a useful desktop target where density permits. Smaller controls are not automatic failures. Check the spacing, equivalent-control, inline, user-agent and essential exceptions before reporting one.
++WCAG 2.5.8 Level AA requires a 24×24 CSS-pixel target or one of its defined exceptions. Treat 44px as a recommended touch target for primary controls and 40px as a useful desktop target when the product's density permits. Smaller controls are not automatically failures: check the spacing, equivalent-control, inline, user-agent, and essential exceptions before reporting one.
+ 
+-Under the spacing exception, an undersized target passes when a 24px circle centered on its bounding box intersects no other target and no other undersized target's circle. In the simple case, 20px targets need a 4px gap.
++Under the spacing exception, an undersized target passes if a 24px circle centered on its bounding box does not intersect another target or another undersized target's circle; in the simple case, 20px targets need at least a 4px gap.
+ 
+-The visible element can stay small; the hit area is what must be big. Anything that looks clickable must be clickable across its whole visual extent, with no dead zones. A checkbox and its label share one hit target.
++The visible element can stay small; the hit area is what must be big. If it looks clickable, it must be clickable across its whole visual extent: no dead zones (a checkbox and its label share one hit target).
+ 
+ ## Expanding the hit area
+ 
+-Where the visible element is smaller, say a 20×20 checkbox, extend the hit area with a pseudo-element. Put it on the wrapping `<label>` or `<button>`, never on the `<input>`, because replaced elements don't render `::before`/`::after` reliably.
++If the visible element is smaller (e.g., a 20×20 checkbox), extend the hit area with a pseudo-element. Put the pseudo-element on the wrapping `<label>` or `<button>`, not on the `<input>` itself; replaced elements don't render `::before`/`::after` reliably.
+ 
+-### CSS example
++### CSS Example
+ 
+ ```css
+ /* Small checkbox with expanded 44px hit area, on the wrapping label */
+@@ -44,7 +44,7 @@ Where the visible element is smaller, say a 20×20 checkbox, extend the hit area
+ }
+ ```
+ 
+-### Tailwind example
++### Tailwind Example
+ 
+ ```tsx
+ <button className="relative size-5 after:absolute after:top-1/2 after:left-1/2 after:size-11 after:-translate-1/2">
+@@ -54,7 +54,7 @@ Where the visible element is smaller, say a 20×20 checkbox, extend the hit area
+ 
+ ### Layout alternative
+ 
+-Where the element can afford real box size, skip the pseudo-element and let the box be the target. That hands the browser real geometry for scrolling and gestures:
++When the element can afford real box size, skip the pseudo-element and let the box itself be the target; this also gives the browser the real geometry for scrolling and gestures:
+ 
+ ```css
+ .icon-button {
+@@ -65,30 +65,12 @@ Where the element can afford real box size, skip the pseudo-element and let the
+ }
+ ```
+ 
+-## Collision rule
++## Collision Rule
+ 
+-Where the extended hit area overlaps another interactive element, shrink the pseudo-element to the largest size that does not collide. Two interactive elements never have overlapping hit areas.
+-
+-## Decorative layers
+-
+-A decorative layer painted over interactive content absorbs every pointer event its box covers: a gradient scrim, a glow, a blurred sheen, a full-bleed `::after`. The control underneath looks live and does nothing, and no hit-area sizing fixes it.
+-
+-Give each one `pointer-events: none` (Tailwind `pointer-events-none`) so events reach the control below, plus `aria-hidden="true"` to keep it out of the accessibility tree:
+-
+-```css
+-.card-glow {
+-  position: absolute;
+-  inset: 0;
+-  pointer-events: none;
+-}
+-```
+-
+-Keep pointer events on any layer the user is meant to hit: a modal scrim that dismisses on click is a control, not decoration.
++If the extended hit area overlaps another interactive element, shrink the pseudo-element, but make it as large as possible without colliding. Two interactive elements should never have overlapping hit areas.
+ 
+ ## Touch behavior
+ 
+ - Add `touch-action: manipulation` to interactive elements to remove the double-tap-to-zoom delay on mobile.
+-- Set `touch-action: none` on a surface implementing its own pan, zoom, or drag gestures, so the browser stops claiming them for scrolling and pinch-zoom. Scope it to that surface; at page level it removes scrolling.
+ - Set `-webkit-tap-highlight-color` to match the design instead of the default gray flash.
+-- Put hover-only styling behind `@media (hover: hover)`. On touch, `:hover` latches after a tap and holds until the user taps elsewhere, so it reads as a stuck selected state. Tailwind 4's `hover:` variant already compiles under this query.
+-- Prefer generous targets and clear affordances over finicky interactions such as tiny drag handles and precise hover zones.
++- Prefer generous targets and clear affordances over finicky interactions (tiny drag handles, precise hover zones).
+diff --git a/motion-and-zoom.md b/motion-and-zoom.md
+index 2101162..10e4a91 100644
+--- a/motion-and-zoom.md
++++ b/motion-and-zoom.md
+@@ -1,10 +1,10 @@
+-# Motion and zoom
++# Motion and Zoom
+ 
+ `prefers-reduced-motion`, zoom and reflow, and unit choices that respect user settings.
+ 
+ ## prefers-reduced-motion
+ 
+-Make motion opt-in. Wrap animations in `@media (prefers-reduced-motion: no-preference)` so users who asked for reduced motion get the static version by default, rather than you chasing every animation with an override.
++Make motion opt-in: wrap animations in `@media (prefers-reduced-motion: no-preference)` so users who asked for reduced motion get the static version by default, instead of you chasing every animation with an override.
+ 
+ ```css
+ /* Good: motion is opt-in */
+@@ -23,7 +23,7 @@ Make motion opt-in. Wrap animations in `@media (prefers-reduced-motion: no-prefe
+ <div className="motion-safe:transition-transform motion-safe:hover:-translate-y-1" />
+ ```
+ 
+-For an existing codebase where opt-in isn't feasible, the global kill switch is the fallback:
++For an existing codebase where opt-in is not immediately feasible, prefer targeted reduced-motion overrides on the known animated components. A global duration override is a temporary migration aid only: it can change application behavior when JavaScript relies on transition or animation timing, so use it only after auditing and testing those event-driven flows.
+ 
+ ```css
+ @media (prefers-reduced-motion: reduce) {
+@@ -36,11 +36,11 @@ For an existing codebase where opt-in isn't feasible, the global kill switch is
+ }
+ ```
+ 
+-`0.01ms` rather than `none`, so `animationend` and `transitionend` still fire and JS waiting on them doesn't hang.
++`0.01ms` rather than `none` may preserve `animationend`/`transitionend` events, but it does not prove event-driven behavior remains correct. Remove the global override after component-level reduced-motion variants are in place.
+ 
+ ### What to disable vs reduce
+ 
+-Reduced motion means reduced, not eliminated. It targets vestibular triggers, not feedback.
++Reduced motion means reduced, not eliminated: it targets vestibular triggers, not feedback.
+ 
+ | Disable entirely | Replace | Keep |
+ | --- | --- | --- |
+@@ -48,26 +48,26 @@ Reduced motion means reduced, not eliminated. It targets vestibular triggers, no
+ | Autoplaying video, GIFs, looping decoration | Smooth scrolling → instant jump | Instant state changes (hover color, focus ring) |
+ | Spinning, large-scale movement across the screen | Auto-rotating carousels → start paused | Brief functional feedback (button press) |
+ 
+-Animations are interruptible and driven by user input. Nothing autoplays or refuses to stop, and under reduced motion carousels start paused.
++Animations must be interruptible and driven by user input; nothing should autoplay or refuse to stop. Under reduced motion, carousels start paused.
+ 
+ ## Autoplay and timed UI
+ 
+-Motion the user didn't ask for and UI acting on its own schedule:
++Motion the user didn't ask for, and UI that acts on its own schedule:
+ 
+-- **No autoplaying media without visible controls** (WCAG 2.2.2). Anything moving, blinking, or updating on its own for more than 5 seconds needs a visible pause or stop control, muted looping hero videos included.
+-- **Prefer explicit dismissal over timers.** Auto-dismissal suits low-stakes confirmations and nothing else. A toast carrying an action, an error, or information the user may need stays until dismissed. Where one must time out, 5 seconds is the floor, and hovering or focusing it pauses the timer.
++- **No autoplaying media without visible controls** (WCAG 2.2.2): anything that moves, blinks or updates automatically for more than 5 seconds needs a visible pause/stop control. Muted looping hero videos included.
++- **Prefer explicit dismissal over timers.** Auto-dismissing toasts are acceptable only for low-stakes confirmations; anything containing an action, an error, or information the user may need to act on stays until dismissed. If a toast must time out, 5 seconds is the floor, and hovering or focusing it pauses the timer.
+ - **Never put critical information only in a timed element.** A vanished toast with the only link to an undo action is data loss on a schedule.
+ 
+ ## Zoom and reflow
+ 
+-- **200% zoom** (WCAG 1.4.4). All content and functionality survives text scaled to 200%, and the viewport leaves the reader able to zoom.
+-- **Reflow at 320px** (WCAG 1.4.10). At 400% zoom on a 1280px viewport, equivalent to a 320px one, the page must work with vertical scrolling alone. Genuinely 2D content is the exception: tables, maps and code blocks scroll inside their own container.
++- **200% zoom** (WCAG 1.4.4): all content and functionality must survive text scaled to 200%. Never block zoom: no `user-scalable=no`, no `maximum-scale=1`. Safari ignores the cap but every other browser enforces it.
++- **Reflow at 320px** (WCAG 1.4.10): at 400% zoom on a 1280px viewport (equivalent to a 320px viewport) the page must work with vertical scrolling only: no two-dimensional scrolling except for genuinely 2D content (tables, maps, code blocks), which scroll inside their own container.
+ 
+-Fixed heights are what break under zoom. Use `min-height` on anything containing text and let containers grow.
++Fixed heights are what break under zoom: use `min-height` on anything containing text and let containers grow.
+ 
+ ### rem vs px
+ 
+-Respect how the codebase is set up. Where the project sizes in `px`, or on an established Tailwind scale, stay consistent and never introduce mixed units into someone else's system. Where you do have the choice, in new code or a codebase already on `rem`, `rem` respects the user's base font size and `px` ignores it:
++Respect how the codebase is set up: if the project sizes in `px` (or an established Tailwind scale), stay consistent with it; don't introduce mixed units into someone else's system. Where you do have the choice (new code, or a codebase already on `rem`), `rem` respects the user's base font size and `px` ignores it:
+ 
+ | Use `rem` | Use `px` |
+ | --- | --- |
+@@ -76,4 +76,4 @@ Respect how the codebase is set up. Where the project sizes in `px`, or on an es
+ | Media-query breakpoints (`@media (min-width: 48rem)`) | `box-shadow` details |
+ | Spacing that should scale with text | Fixed-size decorations |
+ 
+-Breakpoints are where the choice matters most. At a larger base font size an `em` or `rem` query switches to the mobile layout when the text needs it, and a `px` query does not.
++Breakpoints are where the choice matters most: at a larger base font size, an `em`/`rem` query switches to the mobile layout when the text needs it; a `px` query doesn't.
+diff --git a/screen-readers.md b/screen-readers.md
+index aaee977..6be39ba 100644
+--- a/screen-readers.md
++++ b/screen-readers.md
+@@ -1,6 +1,6 @@
+-# Screen readers
++# Screen Readers
+ 
+-Visually hidden content, live regions, toasts, alt text and SVG.
++Visually hidden content, live regions, toasts, alt text, and SVG.
+ 
+ ## Visually hidden content
+ 
+@@ -21,20 +21,20 @@ The canonical `.sr-only` pattern hides content visually while keeping it in the
+ }
+ ```
+ 
+-Use `1px` boxes, not `0`, because some screen readers skip zero-sized elements. `white-space: nowrap` stops words being read as one run-together string. Never `display: none` or `visibility: hidden`, which remove the content from assistive tech entirely.
++Use `1px` boxes, not `0`; some screen readers skip zero-sized elements. `white-space: nowrap` prevents words from being read as one run-together string. Never use `display: none` or `visibility: hidden` for this; both remove the content from assistive tech entirely.
+ 
+-Tailwind ships this as `sr-only`. Skip links add a focus variant that un-hides it, `focus:not-sr-only` or an override on `:focus`.
++Tailwind ships this as `sr-only`. For skip links, add a focus variant that un-hides the element (`focus:not-sr-only`, or override the positioning on `:focus`).
+ 
+-Use it for context sighted users get visually: `<span class="sr-only">Opens in new tab</span>`, table captions, or an icon-only control's label where `aria-label` isn't an option.
++Use it for context that sighted users get visually: `<span class="sr-only">Opens in new tab</span>`, table caption text, or the label of an icon-only control when `aria-label` isn't an option.
+ 
+ ## Choosing how to announce a change
+ 
+ Work down this list and stop at the first match:
+ 
+-1. **Focus moves there anyway**, as with an opened modal or the first invalid field. Nothing extra needed; the focus move is the announcement.
+-2. **Tied to a specific control**, such as a field error or character count: `aria-describedby` on the control, announced with the field.
+-3. **Non-urgent, not tied to a control**, such as a toast, "Saved", a result count, or a loading state: a polite live region, `role="status"`.
+-4. **Urgent and not tied to a control**, such as a form-level failure or session expiry: `role="alert"`.
++1. **Focus moves there anyway** (opened modal, first invalid field on submit): nothing extra needed; the focus move is the announcement.
++2. **Tied to a specific control** (field error, character count): `aria-describedby` on the control; it's announced with the field.
++3. **Non-urgent, not tied to a control** (toast, "Saved", result count, loading state): polite live region / `role="status"`.
++4. **Urgent and not tied to a control** (form-level failure, session expiring): `role="alert"`.
+ 
+ ## Live regions
+ 
+@@ -47,11 +47,11 @@ Live regions announce content that changes without a page load: toasts, validati
+ 
+ Rules for reliable announcements:
+ 
+-- For repeated polite updates, keep a stable empty region in the DOM before changing its text. Inserting a new polite region with its content is announced inconsistently.
+-- Dynamically inserted `role="alert"` content is usually announced, but behavior varies. Use it only for urgent errors not tied to a control, and test the target browser and screen-reader combinations.
+-- Default to polite. Overusing `assertive` is the most common live-region mistake, because it interrupts whatever the user was reading.
+-- Keep messages short and self-contained. `aria-atomic="true"` re-reads the whole region on change.
+-- Never move focus to a toast. Announce it and leave focus where the user is working. Give toasts a generous timeout or a dismiss button, and never put the only path to an action inside an auto-dismissing one.
++- For repeated polite updates, keep a stable empty region in the DOM before changing its text. Inserting a new polite region together with its content is inconsistently announced.
++- Dynamically inserted `role="alert"` content is commonly announced, but behavior varies; use it only for urgent errors not tied to a control and test the target browser/screen-reader combinations.
++- Default to polite. Overusing `assertive` is the most common live-region mistake; it interrupts whatever the user was reading.
++- Keep messages short and self-contained; `aria-atomic="true"` re-reads the whole region on change.
++- Don't move focus to a toast; announce it and leave focus where the user is working. Give toasts a generous timeout or a dismiss button, and never put the only path to an action inside an auto-dismissing toast.
+ 
+ ```tsx
+ // Region rendered from the start, message injected later
+@@ -64,7 +64,7 @@ For loading states: set `aria-busy="true"` on the updating region, announce "Loa
+ 
+ ## aria-hidden
+ 
+-`aria-hidden="true"` removes an element and its whole subtree from assistive tech. Use it for decorative icons and content duplicated for visual effect. Never put it on or above a focusable element, which creates stops you can Tab to that do not exist for a screen reader. Hiding something interactive means removing it from the tab order too.
++`aria-hidden="true"` removes an element and its whole subtree from assistive tech. Use it for decorative icons and content duplicated for visual effect. Never put it on (or above) a focusable element; that creates stops you can Tab to that don't exist for a screen reader. If you hide something interactive, also remove it from the tab order.
+ 
+ ## Alt text
+ 
+@@ -78,12 +78,12 @@ Choose by purpose, not by what the image looks like:
+ | Image of text | The exact text (better: use real text) | `alt="50% off everything"` |
+ | Complex (chart, diagram) | Short summary in `alt`, full data as a table or text nearby | `alt="Revenue by quarter, described below"` |
+ 
+-A missing `alt` is worse than an empty one, because screen readers fall back to reading the file name.
++A missing `alt` attribute is worse than an empty one: screen readers fall back to reading the file name.
+ 
+ ## SVG
+ 
+-- Decorative SVG: `aria-hidden="true"` and `focusable="false"`, the latter for legacy Edge and IE tabbing. No title needed.
+-- Meaningful inline SVG: `role="img"` plus `aria-label="…"`, or a `<title>` as the first child referenced by `aria-labelledby`.
++- Decorative SVG: `aria-hidden="true"` and `focusable="false"` (the latter for legacy Edge/IE tabbing), no title needed.
++- Meaningful inline SVG: `role="img"` plus `aria-label="…"` (or a `<title>` as the first child referenced by `aria-labelledby`).
+ - Simple cases: `<img src="icon.svg" alt="…">` is the most reliable delivery.
+ 
+ ```tsx
+diff --git a/semantics-and-aria.md b/semantics-and-aria.md
+index 0e1ef21..1865e40 100644
+--- a/semantics-and-aria.md
++++ b/semantics-and-aria.md
+@@ -1,16 +1,16 @@
+ # Semantics and ARIA
+ 
+-Native elements first, landmarks, accessible names and the ARIA rules that keep custom widgets honest.
++Native elements first, landmarks, accessible names, and the ARIA rules that keep custom widgets honest.
+ 
+ ## The rules of ARIA
+ 
+ 1. If a native HTML element with the semantics and behavior you need exists, use it instead of repurposing another element with ARIA.
+ 2. Don't change native semantics unless you really have to.
+-3. Every interactive ARIA control must be keyboard-operable; a role is a promise of the full keyboard model, states and behavior.
++3. Every interactive ARIA control must be keyboard-operable; a role is a promise of the full keyboard model, states, and behavior.
+ 4. Never put `role="presentation"` or `aria-hidden="true"` on a focusable element.
+ 5. All interactive elements must have an accessible name.
+ 
+-No ARIA is better than bad ARIA. A screen reader trusts your roles, so a wrong one is worse than none.
++No ARIA is better than bad ARIA: a screen reader trusts your roles, so a wrong role is worse than none.
+ 
+ ## Button vs link vs div
+ 
+@@ -24,28 +24,28 @@ No ARIA is better than bad ARIA. A screen reader trusts your roles, so a wrong o
+ // Bad: invisible to keyboard and screen readers
+ <div onClick={openSettings}>Settings</div>
+ 
+-// Good: focus, Enter/Space activation and semantics for free
++// Good: focus, Enter/Space activation, and semantics for free
+ <button onClick={openSettings}>Settings</button>
+ ```
+ 
+-If it looks clickable it must be clickable, and if it's clickable it must be a real interactive element. Rebuilding a link as a button, or the reverse, breaks user expectations. A "button" that navigates is a styled `<a>`.
++If it looks clickable it must be clickable, and the reverse: if it's clickable it must be a real interactive element. Rebuilding a link as a button (or vice versa) breaks user expectations; a "button" that navigates should be a styled `<a>`.
+ 
+-Where a native element is truly impossible, the full polyfill is `role="button"` plus `tabindex="0"` plus Enter and Space handlers, which is why the native element is always less code.
++If a native element is truly impossible, the full polyfill is `role="button"` + `tabindex="0"` + Enter and Space handlers, which is why the native element is always less code.
+ 
+ ## Landmarks and headings
+ 
+ - Expose one visible primary `<main>` landmark. `<header>`, `<nav>`, `<aside>`, `<footer>` map to landmarks screen-reader users jump between.
+ - Multiple landmarks of the same type need distinguishing labels: `<nav aria-label="Primary">`, `<nav aria-label="Breadcrumbs">`.
+-- Do not report the one-`<h1>` or the no-skipped-levels convention as a standalone WCAG failure without a concrete navigation or comprehension impact. Headings are structure, not styling; style a heading level with CSS instead of picking the tag by size.
++- Headings describe their sections and form a coherent outline. One page-level `<h1>` and properly nested levels are the recommended default; do not report either convention as a standalone WCAG failure without a concrete navigation or comprehension impact. Headings are structure, not styling; style a heading level with CSS instead of picking the tag by size.
+ - `<title>` matches the current context, most specific first: `Billing · Settings · Acme`.
+ 
+ ## Accessible names
+ 
+ Name precedence: `aria-labelledby` > `aria-label` > native label (`<label>`, text content, `alt`) > `title` attribute.
+ 
+-- Prefer visible text or `aria-labelledby` over `aria-label`, which is invisible, drifts out of sync with the UI and is handled inconsistently by translation tools.
++- Prefer visible text or `aria-labelledby` over `aria-label`: `aria-label` is invisible, drifts out of sync with the UI, and translation tools handle it inconsistently.
+ - Icon-only buttons always need a name: `<button aria-label="Close">` with the icon `aria-hidden="true"`.
+-- WCAG 2.5.3 Label in Name: a button showing "Send" with `aria-label="Submit message"` breaks voice control users who say "click Send".
++- The visible label must appear inside the accessible name (WCAG 2.5.3 Label in Name). A button showing "Send" with `aria-label="Submit message"` breaks voice control users who say "click Send".
+ - Accessible names must exist even when the design omits visible labels.
+ 
+ ```tsx
+@@ -60,13 +60,13 @@ Name precedence: `aria-labelledby` > `aria-label` > native label (`<label>`, tex
+ </button>
+ ```
+ 
+-Add `translate="no"` to brand names, code tokens and identifiers so auto-translation doesn't garble them.
++Add `translate="no"` to brand names, code tokens, and identifiers so auto-translation doesn't garble them.
+ 
+ ## Common ARIA mistakes
+ 
+ | Mistake | Why it fails |
+ | --- | --- |
+-| `aria-label` on a plain `<div>` or `<span>` | Most screen readers ignore names on non-interactive, role-less elements |
++| `aria-label` on a plain `<div>` or `<span>` | Names on non-interactive, role-less elements are ignored by most screen readers |
+ | `<button role="button">` | Redundant role; adds noise, no benefit |
+ | `aria-hidden="true"` on or above a focusable element | Creates elements you can Tab to but that don't exist for screen readers |
+ | `aria-labelledby`/`aria-describedby` pointing at a missing ID | Silently produces no name or description |
+@@ -74,11 +74,10 @@ Add `translate="no"` to brand names, code tokens and identifiers so auto-transla
+ 
+ ## Disabled states
+ 
+-Native `disabled` supplies the platform's complete disabled behavior. It removes the control from the tab order, suppresses activation, applies `:disabled` and excludes form controls from submission. Use it when a native control is genuinely unavailable. `aria-disabled="true"` only announces the state, changing neither focusability, nor behavior, nor styling.
++Native `disabled` supplies the platform's complete disabled behavior: it removes the control from the tab order, suppresses activation, applies `:disabled`, and excludes form controls from submission. Use it when a native control is genuinely unavailable. `aria-disabled="true"` only announces the state; it does not change focusability, suppress behavior, or add disabled styling.
+ 
+-- Never disable submit buttons. Keep them enabled, validate on submit and focus the first error ([forms.md](forms.md)).
+-- A natively `disabled` control suppresses pointer events and leaves the tab order, so a tooltip on it never opens for keyboard or touch users and is unreliable for mouse users. Put the reason in visible text beside the control, or switch to `aria-disabled="true"`, which keeps it focusable and hoverable and can carry a tooltip.
+-- Use `aria-disabled="true"` where keeping a control discoverable in the tab order is intentional, or where a custom control cannot use native `disabled`.
+-- With `aria-disabled="true"`, block pointer and keyboard activation in the handler, prevent form submission where applicable, add explicit styling including forced-colors support and explain nearby why the action is unavailable.
++- Don't disable submit buttons at all: keep them enabled, validate on submit, and focus the first error (see [forms.md](forms.md)).
++- Use `aria-disabled="true"` when keeping a control discoverable in the tab order is an intentional requirement, or when a custom control cannot use native `disabled`.
++- With `aria-disabled="true"`, block pointer and keyboard activation in the handler, prevent form submission where applicable, add explicit styling (including forced-colors support), and explain why the action is unavailable nearby.
+ - Never set both `disabled` and `aria-disabled` on the same element.
+-- Disabled controls are exempt from contrast minimums. Keep them legible anyway.
++- Disabled controls are exempt from contrast minimums, but keep them legible anyway.
