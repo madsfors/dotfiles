@@ -6,6 +6,8 @@ Shared configuration for coding agents.
 
 - `skills/` is the single source of truth for reusable agent skills.
 - `agents/` contains custom agent definitions.
+- `rules/cursor/mads-preferences.mdc` contains shared global preferences for Cursor and Codex.
+- `rules/cursor/work-boundary.mdc` contains the Cursor-only work-boundary rating.
 - `settings/claude/` contains Claude Code-specific settings and scripts.
 
 Tool-specific settings belong under `settings/<tool>/`, but shared skills stay in
@@ -15,7 +17,10 @@ Tool-specific settings belong under `settings/<tool>/`, but shared skills stay i
 
 `script/setup` links:
 
+- `agents/rules/cursor/*.mdc` -> `~/.cursor/rules/`
+- `agents/rules/cursor/mads-preferences.mdc` -> `~/.codex/AGENTS.md`
 - `agents/skills` -> `~/.claude/skills`
+- `agents/skills/<name>` -> `~/.agents/skills/<name>` for Codex, excluding the legacy Claude-specific `skill-creator`
 - `agents/agents` -> `~/.claude/agents`
 - `agents/settings/claude/settings.json` -> `~/.claude/settings.json`
 - `agents/settings/claude/statusline.sh` -> `~/.claude/statusline.sh`

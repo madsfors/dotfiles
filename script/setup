@@ -135,11 +135,55 @@ install_agent_config() {
   info 'installing agent config'
 
   local overwrite_all=false backup_all=false skip_all=false
+  local codex_skills_dir current_src installed_skill installed_target
 
-  mkdir -p "$HOME/.claude"
+  mkdir -p "$HOME/.claude" "$HOME/.codex" "$HOME/.agents"
+
+  if [ -d "$DOTFILES_ROOT/agents/rules/cursor" ]; then
+    info 'installing Cursor rules'
+    mkdir -p "$HOME/.cursor/rules"
+
+    for src in "$DOTFILES_ROOT"/agents/rules/cursor/*.mdc; do
+      [ -e "$src" ] || continue
+      link_file "$src" "$HOME/.cursor/rules/$(basename "$src")"
+    done
+  fi
+
+  if [ -f "$DOTFILES_ROOT/agents/rules/cursor/mads-preferences.mdc" ]; then
+    link_file "$DOTFILES_ROOT/agents/rules/cursor/mads-preferences.mdc" "$HOME/.codex/AGENTS.md"
+  fi
 
   if [ -d "$DOTFILES_ROOT/agents/skills" ]; then
     link_file "$DOTFILES_ROOT/agents/skills" "$HOME/.claude/skills"
+
+    codex_skills_dir="$HOME/.agents/skills"
+    if [ -L "$codex_skills_dir" ]; then
+      current_src="$(readlink "$codex_skills_dir")"
+      if [ "$current_src" = "$DOTFILES_ROOT/agents/skills" ]; then
+        unlink "$codex_skills_dir"
+      else
+        fail "Refusing to replace Codex skills link: $codex_skills_dir -> $current_src"
+      fi
+    fi
+    mkdir -p "$codex_skills_dir"
+
+    for installed_skill in "$codex_skills_dir"/*; do
+      [ -L "$installed_skill" ] || continue
+      installed_target="$(readlink "$installed_skill")"
+      case "$installed_target" in
+        "$DOTFILES_ROOT/agents/skills/"*)
+          if [ ! -d "$installed_target" ] || [ "$(basename "$installed_skill")" = "skill-creator" ]; then
+            unlink "$installed_skill"
+          fi
+          ;;
+      esac
+    done
+
+    for src in "$DOTFILES_ROOT"/agents/skills/*; do
+      [ -d "$src" ] || continue
+      [ "$(basename "$src")" != "skill-creator" ] || continue
+      link_file "$src" "$codex_skills_dir/$(basename "$src")"
+    done
   fi
 
   if [ -d "$DOTFILES_ROOT/agents/agents" ]; then
