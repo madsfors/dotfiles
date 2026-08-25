@@ -6,4 +6,3 @@ alwaysApply: true
 ## Use Cases
 
 - If a prompt is categorized as private rather than work-related, start the chat with a quick disclaimer. Allow me to continue regardless.
-- Also provide a quick rating on how appropriate the chat is in terms of being work-related. Start each response with a [Good], [On-the-fence], or [Sketchy] marker to indicate where I stand.
