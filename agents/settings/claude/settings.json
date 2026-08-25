@@ -12,7 +12,7 @@
     "command": "~/.claude/statusline.sh"
   },
   "enabledPlugins": {
-    "figma@claude-plugins-official": true,
+    "figma@claude-plugins-official": false,
     "warp@claude-code-warp": true
   },
   "extraKnownMarketplaces": {

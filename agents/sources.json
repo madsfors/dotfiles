@@ -43,8 +43,8 @@
       "status": "adapted",
       "patch": "agents/patches/better-interface.patch",
       "notes": "Maps upstream domain owners to local skill names and limits review verification to known read-only commands.",
-      "revision": "6c43b20ce00f720eed854591abe480127629c191",
-      "importedAt": "2026-08-23"
+      "revision": "ca483852de23d48ab4f4ea71da37dad12bd70a95",
+      "importedAt": "2026-08-25"
     },
     "better-layout": {
       "source": "https://github.com/jakubkrehel/skills/tree/main/skills/better-layout",
@@ -103,8 +103,11 @@
     },
     "ask-questions-if-underspecified": {
       "source": "https://github.com/mikker/dotfiles/tree/master/agents.symlink/skills/ask-questions-if-underspecified",
-      "importedAt": "2026-05-26",
-      "status": "copied"
+      "importedAt": "2026-08-25",
+      "status": "adapted",
+      "patch": "agents/patches/ask-questions-if-underspecified.patch",
+      "notes": "Adds matching explicit-only invocation policy for Cursor, Claude, and Codex.",
+      "revision": "3198625d670d551c39237699d255fc7621f8eb20"
     },
     "proper-fix": {
       "source": "https://github.com/mikker/dotfiles/tree/master/agents.symlink/skills/proper-fix",

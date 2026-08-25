@@ -135,7 +135,7 @@ install_agent_config() {
   info 'installing agent config'
 
   local overwrite_all=false backup_all=false skip_all=false
-  local codex_skills_dir current_src installed_skill installed_target
+  local codex_skills_dir current_src installed_skill installed_target code_entry
 
   mkdir -p "$HOME/.claude" "$HOME/.codex" "$HOME/.agents"
 
@@ -151,6 +151,17 @@ install_agent_config() {
 
   if [ -f "$DOTFILES_ROOT/agents/rules/cursor/mads-preferences.mdc" ]; then
     link_file "$DOTFILES_ROOT/agents/rules/cursor/mads-preferences.mdc" "$HOME/.codex/AGENTS.md"
+  fi
+
+  if [ -d "$DOTFILES_ROOT/agents/rules/code" ]; then
+    info 'installing code-wide agent rules'
+    mkdir -p "$HOME/Code"
+
+    for code_entry in AGENTS.md CLAUDE.md; do
+      if [ -f "$DOTFILES_ROOT/agents/rules/code/$code_entry" ]; then
+        link_file "$DOTFILES_ROOT/agents/rules/code/$code_entry" "$HOME/Code/$code_entry"
+      fi
+    done
   fi
 
   if [ -d "$DOTFILES_ROOT/agents/skills" ]; then

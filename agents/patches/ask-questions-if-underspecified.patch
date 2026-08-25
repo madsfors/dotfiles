@@ -1,0 +1,53 @@
+diff --git a/SKILL.md b/SKILL.md
+index c2a93c9..f3fb48e 100644
+--- a/SKILL.md
++++ b/SKILL.md
+@@ -1,6 +1,7 @@
+ ---
+ name: ask-questions-if-underspecified
+ description: Clarify requirements before implementing. Do not use automatically, only when invoked explicitly.
++disable-model-invocation: true
+ ---
+ 
+ # Ask Questions If Underspecified
+@@ -14,6 +15,7 @@ Ask the minimum set of clarifying questions needed to avoid wrong work; do not s
+ ### 1) Decide whether the request is underspecified
+ 
+ Treat a request as underspecified if after exploring how to perform the work, some or all of the following are not clear:
++
+ - Define the objective (what should change vs stay the same)
+ - Define "done" (acceptance criteria, examples, edge cases)
+ - Define scope (which files/components/users are in/out)
+@@ -28,9 +30,10 @@ If multiple plausible interpretations exist, assume it is underspecified.
+ Ask 1-5 questions in the first pass. Prefer questions that eliminate whole branches of work.
+ 
+ Make questions easy to answer:
++
+ - Optimize for scannability (short, numbered questions; avoid paragraphs)
+ - Offer multiple-choice options when possible
+-- Suggest reasonable defaults when appropriate (mark them clearly as the default/recommended choice; bold the recommended choice in the list, or if you present options in a code block, put a bold "Recommended" line immediately above the block and also tag defaults inside the block)
++- Suggest reasonable defaults when appropriate (mark them clearly as the default/recommended choice; **bold** the recommended choice in the list, or if you present options in a code block, put a bold "Recommended" line immediately above the code block and also tag defaults inside the code block)
+ - Include a fast-path response (e.g., reply `defaults` to accept all recommended/default choices)
+ - Include a low-friction "not sure" option when helpful (e.g., "Not sure - use default")
+ - Separate "Need to know" from "Nice to know" if that reduces friction
+@@ -39,10 +42,12 @@ Make questions easy to answer:
+ ### 3) Pause before acting
+ 
+ Until must-have answers arrive:
++
+ - Do not run commands, edit files, or produce a detailed plan that depends on unknowns
+ - Do perform a clearly labeled, low-risk discovery step only if it does not commit you to a direction (e.g., inspect repo structure, read relevant config files)
+ 
+ If the user explicitly asks you to proceed without answers:
++
+ - State your assumptions as a short numbered list
+ - Ask for confirmation; proceed only after they confirm or correct them
+ 
+diff --git a/agents/openai.yaml b/agents/openai.yaml
+new file mode 100644
+index 0000000..5b1f887
+--- /dev/null
++++ b/agents/openai.yaml
+@@ -0,0 +1,2 @@
++policy:
++  allow_implicit_invocation: false

@@ -1,8 +1,8 @@
 diff --git a/SKILL.md b/SKILL.md
-index 4f7ea14..90ff328 100644
+index 4f7ea14..125a822 100644
 --- a/SKILL.md
 +++ b/SKILL.md
-@@ -1,141 +1,138 @@
+@@ -1,141 +1,139 @@
  ---
  name: better-interface
  description: >-
@@ -11,6 +11,7 @@ index 4f7ea14..90ff328 100644
 -  rather than a single domain and when `interface-review` hands up a change to route.
 -  Triggers on better-interface, holistic interface review, review the whole screen.
 +  User-invoked, cross-discipline interface review that coordinates accessibility, better-layout, better-writing, better-typography, better-colors, and make-interfaces-feel-better. Use when explicitly invoked for a holistic review of a screen, flow, feature, or product interface. Supports quick and full review modes. Triggers on better-interface, full interface review, holistic UI audit, cross-discipline design review, review the whole interface.
++disable-model-invocation: true
  ---
  
 -# Interface review
